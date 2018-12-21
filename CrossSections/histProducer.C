@@ -7,7 +7,7 @@ void Parser(ifstream& file_to_parse, vector<vector<string> >& );	//Function to t
 							 										//of vectors containing the fields. spreadsheet should be empty
 void histProducer(string fileName, string histName, string outputFileName){
 
-	bool verbose = true;
+	bool verbose = false;
 
 	ifstream inputFile(fileName);
 	vector< vector<string> > spreadsheet;
@@ -19,9 +19,10 @@ void histProducer(string fileName, string histName, string outputFileName){
 	float binCenter[points];
 	float crossSection[points];
 	
-	if(verbose) cout << "Found " << points << "points" << endl;
+	if(verbose) cout << "Found " << points << " points" << endl;
 
 	for(int i = 0; i <= points; i++){
+		if (verbose) cout << "Line " << i << "/" << points <<endl;
 		if (i == points){
 			binXLow[i] = binXLow[i-1] +2*(binCenter[i-1] - binXLow[i-1]); 
 			break;	
@@ -29,9 +30,9 @@ void histProducer(string fileName, string histName, string outputFileName){
 		binXLow[i] = stof(spreadsheet.at(i).at(0));
 		binCenter[i] = stof(spreadsheet.at(i).at(1));
 		crossSection[i] = stof(spreadsheet.at(i).at(2));
-		if(verbose && TMath::IsNaN(crossSection[i])) cout << binXLow[i] << "\t" << binCenter[i] << "\t" << crossSection[i] << endl;
+		if(verbose ) cout << binXLow[i] << "\t" << binCenter[i] << "\t" << crossSection[i] << endl;
 	}
-
+// && TMath::IsNaN(crossSection[i])
 	TH1F *hist = new TH1F(histName.c_str(),histName.c_str(),points,binXLow);
 	for(int i = 0; i < points; i++) hist->Fill(binCenter[i],crossSection[i]);
 
