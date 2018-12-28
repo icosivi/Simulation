@@ -42,7 +42,6 @@ void Rivelatore::Intersezione(Neutron *n){
 
   
       if( !(n->GetAbsorption()) && n->GetX()>=0 ){
-
     
           double vx=TMath::Sin(n->GetTheta())*TMath::Cos(n->GetPhi());
 	  double vy=TMath::Sin(n->GetTheta())*TMath::Sin(n->GetPhi());
@@ -54,7 +53,7 @@ void Rivelatore::Intersezione(Neutron *n){
 	  double delta=TMath::Power(beq,2)-4*ceq;
 	  double t_1=(0.5)*(-beq+TMath::Sqrt(delta));
 	  double t_2=(0.5)*(-beq-TMath::Sqrt(delta));
-	  cout<<delta<<endl;
+
 	  
 	   if(delta>0){ this->tp=this->tp+TMath::Abs(t_1-t_2); }
 	   

@@ -8,7 +8,7 @@
 
 ClassImp(Neutron)
 
-Neutron::Neutron():TObject(),  //controllare, la direzine di partenza ha theta e phi uguali a zero!
+/*Neutron::Neutron():TObject(),  //controllare, la direzine di partenza ha theta e phi uguali a zero!
   fp(0,0,0),
   fr(fp,0,0),
   En(0.),
@@ -29,9 +29,9 @@ Neutron::Neutron(const Neutron *n):TObject(),
   Absorption(n->Absorption),
   En(n->En){
   
-}
+  }*/
 
-Neutron::Neutron(Punto p,Retta r,double Energy):TObject(),
+Neutron::Neutron(Punto *p,Retta *r,double Energy):TObject(),
   fp(p),
   fr(r),
   En(Energy),
@@ -40,13 +40,13 @@ Neutron::Neutron(Punto p,Retta r,double Energy):TObject(),
   }
 
 
-Neutron::Neutron(Punto *p,Retta *r,double Energy):TObject(),
+/*Neutron::Neutron(Punto *p,Retta *r,double Energy):TObject(),
   fp(*p),
   fr(*r),
   En(Energy),
   Absorption(kFALSE){
 
-  }
+  }*/
 
 
 Neutron::~Neutron(){
@@ -64,9 +64,13 @@ void Neutron::SetNuovoPunto(double x_int){
   double yy=this->GetY()+(x_int*TMath::Sin(this->GetTheta())*TMath::Sin(this->GetPhi()));
   double zz=this->GetZ()+(x_int*TMath::Cos(this->GetTheta()));
 
-  this->fp.SetX(xx);
-  this->fp.SetY(yy);
-  this->fp.SetZ(zz);
+  /*cout<<xx<<endl;
+  cout<<yy<<endl;
+  cout<<" "<<endl;*/
+
+  this->fp->SetX(xx);
+  this->fp->SetY(yy);
+  this->fp->SetZ(zz);
 
 
 }

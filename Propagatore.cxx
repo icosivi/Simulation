@@ -60,22 +60,14 @@ double Propagatore::x_interaction(double En){
   const TAxis *xaxis3=this->Habsp->GetXaxis();
   int binx3=xaxis3->FindBin(En);
   double sigma_hab=this->Habsp->GetBinContent(binx3)*this->pdensity*(1e-24);
-
-
-  /*double sigma_csc=0.1;
-  double sigma_hsc=0.6;
-  double sigma_cab=0.1;
-  double sigma_hab=0.2;*/
+ 
 
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
 
-  //delete xaxis0;
-  //delete xaxis1;
-  //delete xaxis2;
-  //delete xaxis3;
-  
+  //double xint=-(1./sigma_tot)*log(1-gRandom->Rndm())*10;
+  // cout<<xint<<endl;
 
-  return (1./sigma_tot)*log(1-gRandom->Rndm())*10;  //moltiplico per 10 per passare da cm a mm (la sigma macroscopica è in 1/cm )
+  return -(1./sigma_tot)*log(1-gRandom->Rndm())*10;  //moltiplico per 10 per passare da cm a mm (la sigma macroscopica è in 1/cm )
 
  
 }
@@ -104,11 +96,6 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   int binx3=xaxis3->FindBin(n->GetEnergy());
   double sigma_hab=this->Habsp->GetBinContent(binx3)*this->pdensity*(1e-24);
 
-  /*double sigma_csc=0.1;
-  double sigma_hsc=0.6;
-  double sigma_cab=0.1;
-  double sigma_hab=0.2;*/
-
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
   double sigma_abs=sigma_cab+sigma_hab;
 
@@ -117,15 +104,16 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   double hidrogen_scatt=sigma_hsc/sigma_tot;
 
 
-  //delete xaxis0;
-  //delete xaxis1;
-  //delete xaxis2;
-  //delete xaxis3;
-
   double alfa_cm=1-2*gRandom->Rndm();  //angolo theta nel CM, uniforme tra -1 ed 1
   double beta_cm=1-2*gRandom->Rndm();  //angolo phi nel CM, uniforme tra -1 ed 1
 
   double interaction_type=gRandom->Rndm();
+
+  double new_energy;
+  double delta_th;
+  double new_theta;
+  double delta_ph;
+  double new_phi;
 
   if(interaction_type<=absorption_limit){
 
@@ -136,18 +124,18 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 
   if(interaction_type>absorption_limit && interaction_type<=(absorption_limit+hidrogen_scatt)){  //il nucleo scelto è l'idrogeno 
 
-    double new_energy=n->GetEnergy()*(0.5)*(1+alfa_cm);//NON PUÒ ESSERCI UNA DIPENDENZA SOLO DA THETA E NON DA PHI
+    new_energy=n->GetEnergy()*(0.5)*(1.+alfa_cm);
     
-    double delta_th=TMath::ACos((alfa_cm+1)/(TMath::Sqrt(2+2*alfa_cm)));//definisco l'angolo delta teta nel SR-LAB
-    double new_theta=delta_th+n->GetTheta();
+    delta_th=TMath::ACos((alfa_cm+1.)/(TMath::Sqrt(2.+(2.)*alfa_cm)));//definisco l'angolo delta teta nel SR-LAB
+    new_theta=delta_th+n->GetTheta();
 
-    double delta_ph=TMath::ACos((beta_cm+1)/(TMath::Sqrt(2+2*beta_cm)));//definisco l'angolo delta phi nel SR-LAB
-    double new_phi=delta_ph+n->GetPhi();
-
+    delta_ph=TMath::ACos((beta_cm+1.)/(TMath::Sqrt(2.+(2.)*beta_cm)));//definisco l'angolo delta phi nel SR-LAB
+    new_phi=delta_ph+n->GetPhi();
+ 
     n->SetEnergia(new_energy);
    
-    n->GetRetta().SetTheta(new_theta);
-    n->GetRetta().SetPhi(new_phi);
+    n->GetRetta()->SetTheta(new_theta);
+    n->GetRetta()->SetPhi(new_phi);
     
     return n;
     
@@ -155,17 +143,19 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 
   if(interaction_type>(absorption_limit+hidrogen_scatt)){  //il nucleo è il carbonio
   
-    double new_energy=n->GetEnergy()*(1./169.)*(145+24*alfa_cm);//NON PUÒ ESSERCI UNA DIPENDENZA SOLO DA THETA E NON DA PHI
+    new_energy=n->GetEnergy()*(1./169.)*(145.+24*alfa_cm);
  
-    double delta_th=TMath::ACos((12*alfa_cm+1)/(TMath::Sqrt(145+24*alfa_cm)));
-    double new_theta=delta_th+n->GetTheta();
+    delta_th=TMath::ACos(((12.)*alfa_cm+1.)/(TMath::Sqrt(145.+(24.)*alfa_cm)));
+    new_theta=delta_th+n->GetTheta();
+   
 
-    double delta_ph=TMath::ACos((12*beta_cm+1)/(TMath::Sqrt(145+24*beta_cm)));
-    double new_phi=delta_ph+n->GetPhi();
+    delta_ph=TMath::ACos(((12.)*beta_cm+1.)/(TMath::Sqrt(145.+(24.)*beta_cm)));
+    new_phi=delta_ph+n->GetPhi();
+    
 
     n->SetEnergia(new_energy);
-    n->GetRetta().SetTheta(new_theta);
-    n->GetRetta().SetPhi(new_phi);
+    n->GetRetta()->SetTheta(new_theta);
+    n->GetRetta()->SetPhi(new_phi);
     
     return n;
      
@@ -183,6 +173,13 @@ Neutron* Propagatore::Propagation(Neutron *n){
   
   while(!(n->GetAbsorption()) && contr){
 
+    /*cout<<"x "<<n->GetX()<<endl;
+    cout<<"y "<<n->GetY()<<endl;
+    cout<<"z "<<n->GetZ()<<endl;
+    cout<<"th "<<n->GetTheta()<<endl;
+    cout<<"ph "<<n->GetPhi()<<endl;
+    cout<<" "<<endl;*/
+
       n->SetNuovoPunto(this->x_interaction(n->GetEnergy()));
 
       
@@ -190,7 +187,7 @@ Neutron* Propagatore::Propagation(Neutron *n){
 	
 	this->scattering(n);
 
-      }else{contr=kFALSE;}
+      }else{contr=kFALSE; }
 
 
  }

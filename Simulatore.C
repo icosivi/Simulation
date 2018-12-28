@@ -27,18 +27,15 @@ void Simulatore(){
   
   TFile *f0=new TFile("Cabs.root","READ");
   TFile *f1=new TFile("Habs.root","READ");
-  TFile *f2=new TFile("Cscatt.root","READ");
-  TFile *f3=new TFile("Hscatt.root","READ");
+  TFile *f2=new TFile("Cscat.root","READ");
+  TFile *f3=new TFile("Hscat.root","READ");
 
    TH1F *h_Cabs=dynamic_cast<TH1F*>(f0->Get("C_absorption"));
    TH1F *h_Habs=dynamic_cast<TH1F*>(f1->Get("H_absorption"));
    TH1F *h_Cscatt=dynamic_cast<TH1F*>(f2->Get("C_scattering"));
    TH1F *h_Hscatt=dynamic_cast<TH1F*>(f3->Get("H_scattering"));
    
-   
-   // cout<<h_Cabs->GetBinContent(2)<<endl;
-   //h_Cabs->Draw();
-
+  
 
    const double polietilene_density=2e22;
    double Estart;
@@ -52,6 +49,9 @@ void Simulatore(){
    double shield_sphere_dist;
    double y_centro=0;//sono le coordinate del centro della sfera, per ora sono a zero
    double z_centro=0;
+
+   double seed=0.1;
+   gRandom->SetSeed(seed);
    
 
    cout << "Initial Beam Energy (eV)" << endl;
@@ -88,8 +88,12 @@ void Simulatore(){
     
  		  
   }
-	
-  cout<<"Fluence: "<<riv->GetFluence()<<endl;
+
+  cout<<" "<<endl;
+  cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
+  cout<<" "<<endl;
+  cout<<" "<<endl;
+
 
 }
 
