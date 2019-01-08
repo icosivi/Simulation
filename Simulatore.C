@@ -6,6 +6,9 @@
 #include "TAxis.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "TTree.h"
+#include "TBranch.h"
+#include "TClonesArray.h"
 #include "TRandom3.h"
 #include "Punto.h"
 #include "Retta.h"
@@ -37,7 +40,7 @@ void Simulatore(){
    
   
 
-   const double polietilene_density=2e22;
+   const double polietilene_density=1.2e23;
    double Estart;
    int Nstart;
    double lateral_size;
@@ -68,8 +71,16 @@ void Simulatore(){
    cin >> radius;
    cout << "Distance shield-sphere centre (mm) " << endl;
    cin >> shield_sphere_dist;
-   
 
+   
+   TFile file("neutroni.root","RECREATE");
+   TTree *tree=new TTree("tree","tree di neutroni uscenti");
+   TClonesArray *ptr=new TClonesArray("Neutron",100);
+   TClonesArray &nptr=*ptr;
+
+   tree->Branch("neutron out",&nptr);
+
+   
   
   Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,polietilene_density);
   Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,y_start,z_start);
@@ -81,13 +92,19 @@ void Simulatore(){
   
   for(int i=0;i<gen->GetParticles();i++){
    
-    n=gen->Genera_neutrone();//OK
-    n_out=prop->Propagation(n);//OK gli istogrammi non vanno, ho definit Xs costanti
+    n=gen->Genera_neutrone();
+    n_out=prop->Propagation(n);
+
+    //new(nptr[i]) Neutron(n_out->GetPunto(),n_out->GetRetta(),n_out->GetEnergy());
     
-    riv->Intersezione(n_out);//OK
+    riv->Intersezione(n_out);
     
  		  
   }
+
+  //tree->Fill();
+  file.Write();
+  file.Close();
 
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;

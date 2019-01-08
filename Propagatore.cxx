@@ -65,9 +65,9 @@ double Propagatore::x_interaction(double En){
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
 
   //double xint=-(1./sigma_tot)*log(1-gRandom->Rndm())*10;
-  // cout<<xint<<endl;
+  //cout<<xint<<endl;
 
-  return -(1./sigma_tot)*log(1-gRandom->Rndm())*10;  //moltiplico per 10 per passare da cm a mm (la sigma macroscopica è in 1/cm )
+  return -(1./sigma_tot)*log(1-gRandom->Rndm())*10; //moltiplico per 10 per passare da cm a mm (la sigma macroscopica è in 1/cm )
 
  
 }
@@ -95,6 +95,13 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   const TAxis *xaxis3=this->Habsp->GetXaxis();
   int binx3=xaxis3->FindBin(n->GetEnergy());
   double sigma_hab=this->Habsp->GetBinContent(binx3)*this->pdensity*(1e-24);
+
+  /*cout<<"  "<<endl;
+  cout<<sigma_hsc<<endl;
+  cout<<sigma_csc<<endl;
+  cout<<sigma_hab<<endl;
+  cout<<sigma_cab<<endl;
+  cout<<" "<<endl;*/
 
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
   double sigma_abs=sigma_cab+sigma_hab;
@@ -178,7 +185,9 @@ Neutron* Propagatore::Propagation(Neutron *n){
     cout<<"z "<<n->GetZ()<<endl;
     cout<<"th "<<n->GetTheta()<<endl;
     cout<<"ph "<<n->GetPhi()<<endl;
+    cout<<"Energia "<<n->GetEnergy()<<endl;
     cout<<" "<<endl;*/
+    
 
       n->SetNuovoPunto(this->x_interaction(n->GetEnergy()));
 
@@ -191,7 +200,7 @@ Neutron* Propagatore::Propagation(Neutron *n){
 
 
  }
-
+ 
  return n;
 
 

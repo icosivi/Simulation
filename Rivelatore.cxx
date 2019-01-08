@@ -50,7 +50,7 @@ void Rivelatore::Intersezione(Neutron *n){
 	  double beq=2*(vx*(n->GetX()-this->xp)+vy*(n->GetY()-this->yp)+vz*(n->GetZ()-this->zp));
 	  double ceq=TMath::Power(n->GetX(),2)+TMath::Power(n->GetY(),2)+TMath::Power(n->GetZ(),2)+TMath::Power(this->xp,2)-2*n->GetX()*this->xp+TMath::Power(this->yp,2)-2*n->GetY()*this->yp+TMath::Power(this->zp,2)-2*n->GetZ()*this->zp-(this->rp*this->rp);
 
-	  double delta=TMath::Power(beq,2)-4*ceq;
+	  double delta=beq*beq-4*ceq;
 	  double t_1=(0.5)*(-beq+TMath::Sqrt(delta));
 	  double t_2=(0.5)*(-beq-TMath::Sqrt(delta));
 

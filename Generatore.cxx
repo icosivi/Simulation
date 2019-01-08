@@ -44,7 +44,7 @@ Neutron* Generatore::Genera_neutrone(){
   double x0=0; //per ora partiamo contro lo slab in x=0
 
   Punto *p=new Punto(x0,y0,z0);
-  Retta *r=new Retta(p,0,0);
+  Retta *r=new Retta(p,TMath::Pi()*0.5,0);
   Neutron *n=new Neutron(p,r,this->Ep);
 
   //delete p;////
