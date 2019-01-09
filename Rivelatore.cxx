@@ -41,7 +41,7 @@ Rivelatore::~Rivelatore(){
 void Rivelatore::Intersezione(Neutron *n){
 
   
-      if( !(n->GetAbsorption()) && n->GetX()>=0 ){
+      if( !(n->GetAbsorption()) && n->GetZ()>=0 ){
     
           double vx=TMath::Sin(n->GetTheta())*TMath::Cos(n->GetPhi());
 	  double vy=TMath::Sin(n->GetTheta())*TMath::Sin(n->GetPhi());

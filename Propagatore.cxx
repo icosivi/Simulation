@@ -111,16 +111,18 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   double hidrogen_scatt=sigma_hsc/sigma_tot;
 
 
-  double alfa_cm=1-2*gRandom->Rndm();  //angolo theta nel CM, uniforme tra -1 ed 1
-  double beta_cm=1-2*gRandom->Rndm();  //angolo phi nel CM, uniforme tra -1 ed 1
+  double alfa_cm=TMath::ACos(1.-2*gRandom->Rndm());  //angolo theta nel CM, uniforme tra -1 ed 1
+  // double beta_cm=1-2*gRandom->Rndm();  //angolo phi nel CM, uniforme tra -1 ed 1
 
   double interaction_type=gRandom->Rndm();
 
   double new_energy;
   double delta_th;
   double new_theta;
-  double delta_ph;
+  double delta_phi;
   double new_phi;
+
+  
 
   if(interaction_type<=absorption_limit){
 
@@ -129,18 +131,75 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 
   }
 
+  
+
   if(interaction_type>absorption_limit && interaction_type<=(absorption_limit+hidrogen_scatt)){  //il nucleo scelto è l'idrogeno 
 
-    new_energy=n->GetEnergy()*(0.5)*(1.+alfa_cm);
-    
-    delta_th=TMath::ACos((alfa_cm+1.)/(TMath::Sqrt(2.+(2.)*alfa_cm)));//definisco l'angolo delta teta nel SR-LAB
-    new_theta=delta_th+n->GetTheta();
+    new_energy=n->GetEnergy()*(0.5)*(1.+TMath::Cos(alfa_cm));
 
-    delta_ph=TMath::ACos((beta_cm+1.)/(TMath::Sqrt(2.+(2.)*beta_cm)));//definisco l'angolo delta phi nel SR-LAB
-    new_phi=delta_ph+n->GetPhi();
- 
-    n->SetEnergia(new_energy);
+    //new_phi=2*TMath::Pi()*gRandom->Rndm();
+    //new_theta=delta_th+n->GetTheta();
+    delta_th=TMath::ACos((TMath::Cos(alfa_cm)+1.)/(TMath::Sqrt(2.+(2.)*TMath::Cos(alfa_cm))));
+    delta_phi=2*TMath::Pi()*gRandom->Rndm();
    
+
+    double cd[3];
+    double cdp[3];
+    double mr[3][3];
+
+    double phi=n->GetPhi();
+    double theta=n->GetTheta();
+
+  mr[0][0]=-TMath::Sin(phi);
+  mr[1][0]=TMath::Cos(phi);
+  mr[2][0]=0.;
+  mr[0][1]=-TMath::Cos(phi)*TMath::Cos(theta);
+  mr[1][1]=-TMath::Cos(theta)*TMath::Sin(phi);
+  mr[2][1]=TMath::Sin(theta);
+  mr[0][2]=TMath::Sin(theta)*TMath::Cos(phi);
+  mr[1][2]=TMath::Sin(theta)*TMath::Sin(phi);
+  mr[2][2]=TMath::Cos(theta);
+
+  
+  cdp[0]=TMath::Sin(delta_th)*TMath::Cos(delta_phi);            
+  cdp[1]=TMath::Sin(delta_th)*TMath::Sin(delta_phi);           
+  cdp[2]=TMath::Cos(delta_th);
+
+  for(int i=0;i<3;i++){
+    cd[i]=0.;
+    for(int j=0;j<3;j++){
+      cd[i]+=mr[i][j]*cdp[j];
+    }
+    }
+
+
+  new_theta=TMath::ACos(cd[2]);
+  
+  new_phi=TMath::ATan(cd[1]/cd[0]);
+
+  if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
+  if(cd[0]<0) new_phi+=TMath::Pi();
+ 
+
+  
+    
+  /*if( new_theta>TMath::Pi() ){
+
+      new_theta=2*TMath::Pi()-new_theta;
+      new_phi-=TMath::Pi();
+
+      }
+
+    if( new_theta<0 ){
+
+      new_theta=(-1.)*new_theta;
+      new_phi-=TMath::Pi();
+
+      }*/
+
+   
+    
+    n->SetEnergia(new_energy);
     n->GetRetta()->SetTheta(new_theta);
     n->GetRetta()->SetPhi(new_phi);
     
@@ -148,18 +207,58 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
     
   }
 
+  
+
   if(interaction_type>(absorption_limit+hidrogen_scatt)){  //il nucleo è il carbonio
   
-    new_energy=n->GetEnergy()*(1./169.)*(145.+24*alfa_cm);
+    new_energy=n->GetEnergy()*(1./169.)*(145.+24*TMath::Cos(alfa_cm));
  
-    delta_th=TMath::ACos(((12.)*alfa_cm+1.)/(TMath::Sqrt(145.+(24.)*alfa_cm)));
-    new_theta=delta_th+n->GetTheta();
+    //new_phi=2*TMath::Pi()*gRandom->Rndm();
+    //new_theta=delta_th+n->GetTheta();
+    delta_th=TMath::ACos(((12.)*TMath::Cos(alfa_cm)+1.)/(TMath::Sqrt(145.+(24.)*TMath::Cos(alfa_cm))));
+    delta_phi=2*TMath::Pi()*gRandom->Rndm();
    
-
-    delta_ph=TMath::ACos(((12.)*beta_cm+1.)/(TMath::Sqrt(145.+(24.)*beta_cm)));
-    new_phi=delta_ph+n->GetPhi();
     
+    double cd[3];
+    double cdp[3];
+    double mr[3][3];
 
+    double phi=n->GetPhi();
+    double theta=n->GetTheta();
+
+  mr[0][0]=-TMath::Sin(phi);
+  mr[1][0]=TMath::Cos(phi);
+  mr[2][0]=0.;
+  mr[0][1]=-TMath::Cos(phi)*TMath::Cos(theta);
+  mr[1][1]=-TMath::Cos(theta)*TMath::Sin(phi);
+  mr[2][1]=TMath::Sin(theta);
+  mr[0][2]=TMath::Sin(theta)*TMath::Cos(phi);
+  mr[1][2]=TMath::Sin(theta)*TMath::Sin(phi);
+  mr[2][2]=TMath::Cos(theta);
+
+  
+  cdp[0]=TMath::Sin(delta_th)*TMath::Cos(delta_phi);             
+  cdp[1]=TMath::Sin(delta_th)*TMath::Sin(delta_phi);          
+  cdp[2]=TMath::Cos(delta_th);
+  
+
+  for(int i=0;i<3;i++){
+    cd[i]=0.;
+    for(int j=0;j<3;j++){
+      cd[i]+=mr[i][j]*cdp[j];
+    }
+    }
+
+
+  new_theta=TMath::ACos(cd[2]);
+  
+  new_phi=TMath::ATan(cd[1]/cd[0]);
+
+  if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
+  if(cd[0]<0 ) new_phi+=TMath::Pi();
+   
+    
+    
     n->SetEnergia(new_energy);
     n->GetRetta()->SetTheta(new_theta);
     n->GetRetta()->SetPhi(new_phi);
@@ -177,22 +276,23 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 Neutron* Propagatore::Propagation(Neutron *n){
 
   bool contr=kTRUE;
+  bool verbosity=kFALSE;
   
   while(!(n->GetAbsorption()) && contr){
 
-    /*cout<<"x "<<n->GetX()<<endl;
+    if(verbosity){ cout<<"x "<<n->GetX()<<endl;
     cout<<"y "<<n->GetY()<<endl;
     cout<<"z "<<n->GetZ()<<endl;
     cout<<"th "<<n->GetTheta()<<endl;
     cout<<"ph "<<n->GetPhi()<<endl;
     cout<<"Energia "<<n->GetEnergy()<<endl;
-    cout<<" "<<endl;*/
+    cout<<" "<<endl;}
     
 
       n->SetNuovoPunto(this->x_interaction(n->GetEnergy()));
 
       
-      if( n->GetX()>=0 && n->GetX()<=this->ptarget_thickness && n->GetY()>=-(0.5)*this->ptarget_side &&  n->GetY()<=(0.5)*this->ptarget_side && n->GetZ()>=-(0.5)*this->ptarget_side && n->GetZ()<=(0.5)*this->ptarget_side ){
+      if( n->GetZ()>=0 && n->GetZ()<=this->ptarget_thickness && n->GetY()>=-(0.5)*this->ptarget_side &&  n->GetY()<=(0.5)*this->ptarget_side && n->GetX()>=-(0.5)*this->ptarget_side && n->GetX()<=(0.5)*this->ptarget_side ){
 	
 	this->scattering(n);
 
@@ -211,7 +311,7 @@ Neutron* Propagatore::Propagation(Neutron *n){
 
 
 //matrice per passare da CM a LAB
-/*void Rivelatore::Rotate(double theta, double phi, double theta0, double phi0, double *cd){
+/*void Rivelatore::Rotate(double theta, double phi, double theta0, double phi0){
 
  
   double mr[3][3];
@@ -236,7 +336,15 @@ Neutron* Propagatore::Propagation(Neutron *n){
     for(int j=0;j<3;j++){
       cd[i]+=mr[i][j]*cdp[j];
     }
+    }
+
+
+
+
     }*/
 
 
 
+//dir[0]=TMath::Sin(teta)*TMath::Cos(phi);
+//dir[1]=TMath::Sin(teta)*TMath::Sin(phi);
+//dir[2]=TMath::Cos(teta);

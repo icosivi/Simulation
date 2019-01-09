@@ -29,9 +29,9 @@ class Generatore : public TObject
   int GetParticles() const {return Np;}
   double GetEn() const {return Ep;}
   double Getdy() const {return dy_p;}
-  double Getdz() const {return dz_p;}
+  double Getdx() const {return dx_p;}
   double Gety0() const {return y0p;}
-  double Getz0() const {return z0p;}
+  double Getx0() const {return x0p;}
   
   
  private:
@@ -39,9 +39,9 @@ class Generatore : public TObject
   int Np;
   double Ep;
   double dy_p;
-  double dz_p;
+  double dx_p;
   double y0p;
-  double z0p;
+  double x0p;
  
 
   

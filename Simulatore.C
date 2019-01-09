@@ -46,12 +46,12 @@ void Simulatore(){
    double lateral_size;
    double thick;
    double beam_size;
-   double y_start=0;// y_start e z_start sono le posizioni del centro del fascio, che per ora lascio a zero
-   double z_start=0;
+   double y_start=0;// y_start e x_start sono le posizioni del centro del fascio, che per ora lascio a zero
+   double x_start=0;
    double radius;
    double shield_sphere_dist;
    double y_centro=0;//sono le coordinate del centro della sfera, per ora sono a zero
-   double z_centro=0;
+   double x_centro=0;
 
    double seed=0.1;
    gRandom->SetSeed(seed);
@@ -83,8 +83,8 @@ void Simulatore(){
    
   
   Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,polietilene_density);
-  Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,y_start,z_start);
-  Rivelatore *riv=new Rivelatore(radius,shield_sphere_dist+prop->GetTargetThick(),0,0);
+  Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,x_start,y_start);
+  Rivelatore *riv=new Rivelatore(radius,0,0,shield_sphere_dist+prop->GetTargetThick());
   //Punto *p=new Punto(0,0,0);
   //Retta *r=new Retta(p,0,0);
   Neutron *n;
