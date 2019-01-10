@@ -42,7 +42,7 @@ void Simulatore(){
 
    const double polietilene_density=1.2e23;
    double Estart;
-   int Nstart;
+   double Nstart;
    double lateral_size;
    double thick;
    double beam_size;
@@ -73,42 +73,40 @@ void Simulatore(){
    cin >> shield_sphere_dist;
 
    
-   TFile file("neutroni.root","RECREATE");
+   TFile file("neutroni","RECREATE");
    TTree *tree=new TTree("tree","tree di neutroni uscenti");
-   TClonesArray *ptr=new TClonesArray("Neutron",100);
-   TClonesArray &nptr=*ptr;
 
-   tree->Branch("neutron out",&nptr);
-
-   
   
   Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,polietilene_density);
   Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,x_start,y_start);
   Rivelatore *riv=new Rivelatore(radius,0,0,shield_sphere_dist+prop->GetTargetThick());
-  //Punto *p=new Punto(0,0,0);
-  //Retta *r=new Retta(p,0,0);
   Neutron *n;
   Neutron *n_out;
+
+  Neutron &nn_in=*n;
+  Neutron &nn_out=*n_out;
+
+  tree->Branch("nn_in",&nn_in);
+  tree->Branch("nn_out",&nn_out);
   
   for(int i=0;i<gen->GetParticles();i++){
    
     n=gen->Genera_neutrone();
     n_out=prop->Propagation(n);
-
-    //new(nptr[i]) Neutron(n_out->GetPunto(),n_out->GetRetta(),n_out->GetEnergy());
     
     riv->Intersezione(n_out);
-    
- 		  
+   
+    tree->Fill();
+  
+ 
   }
 
-  //tree->Fill();
+  
   file.Write();
   file.Close();
 
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
-  cout<<" "<<endl;
   cout<<" "<<endl;
 
 

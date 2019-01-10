@@ -67,6 +67,7 @@ double Propagatore::x_interaction(double En){
   //double xint=-(1./sigma_tot)*log(1-gRandom->Rndm())*10;
   //cout<<xint<<endl;
 
+
   return -(1./sigma_tot)*log(1-gRandom->Rndm())*10; //moltiplico per 10 per passare da cm a mm (la sigma macroscopica è in 1/cm )
 
  
@@ -96,13 +97,6 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   int binx3=xaxis3->FindBin(n->GetEnergy());
   double sigma_hab=this->Habsp->GetBinContent(binx3)*this->pdensity*(1e-24);
 
-  /*cout<<"  "<<endl;
-  cout<<sigma_hsc<<endl;
-  cout<<sigma_csc<<endl;
-  cout<<sigma_hab<<endl;
-  cout<<sigma_cab<<endl;
-  cout<<" "<<endl;*/
-
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
   double sigma_abs=sigma_cab+sigma_hab;
 
@@ -110,11 +104,10 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   double carbon_scatt=sigma_csc/sigma_tot;
   double hidrogen_scatt=sigma_hsc/sigma_tot;
 
-
   double alfa_cm=TMath::ACos(1.-2*gRandom->Rndm());  //angolo theta nel CM, uniforme tra -1 ed 1
-  // double beta_cm=1-2*gRandom->Rndm();  //angolo phi nel CM, uniforme tra -1 ed 1
 
   double interaction_type=gRandom->Rndm();
+  //double pippo=gRandom->Rndm();
 
   double new_energy;
   double delta_th;
@@ -141,7 +134,9 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
     //new_theta=delta_th+n->GetTheta();
     delta_th=TMath::ACos((TMath::Cos(alfa_cm)+1.)/(TMath::Sqrt(2.+(2.)*TMath::Cos(alfa_cm))));
     delta_phi=2*TMath::Pi()*gRandom->Rndm();
-   
+    //delta_phi=0;
+
+    //if(pippo>0.5) delta_th=-delta_th;
 
     double cd[3];
     double cdp[3];
@@ -175,29 +170,11 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 
   new_theta=TMath::ACos(cd[2]);
   
-  new_phi=TMath::ATan(cd[1]/cd[0]);
+  new_phi=TMath::ATan2(cd[1],cd[0]);  //new_phi=TMath::ATan2(cd[1]/cd[0]);
+  //new_phi=2*TMath::Pi()*gRandom->Rndm();
 
-  if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
-  if(cd[0]<0) new_phi+=TMath::Pi();
- 
-
-  
-    
-  /*if( new_theta>TMath::Pi() ){
-
-      new_theta=2*TMath::Pi()-new_theta;
-      new_phi-=TMath::Pi();
-
-      }
-
-    if( new_theta<0 ){
-
-      new_theta=(-1.)*new_theta;
-      new_phi-=TMath::Pi();
-
-      }*/
-
-   
+  //if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
+  //if(cd[0]<0)  new_phi=TMath::Pi()-new_phi;   //new_phi+=TMath::Pi(); 
     
     n->SetEnergia(new_energy);
     n->GetRetta()->SetTheta(new_theta);
@@ -209,7 +186,7 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 
   
 
-  if(interaction_type>(absorption_limit+hidrogen_scatt)){  //il nucleo è il carbonio
+  if(interaction_type>(absorption_limit+hidrogen_scatt)){  //il nucleo scelto è il carbonio
   
     new_energy=n->GetEnergy()*(1./169.)*(145.+24*TMath::Cos(alfa_cm));
  
@@ -217,7 +194,9 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
     //new_theta=delta_th+n->GetTheta();
     delta_th=TMath::ACos(((12.)*TMath::Cos(alfa_cm)+1.)/(TMath::Sqrt(145.+(24.)*TMath::Cos(alfa_cm))));
     delta_phi=2*TMath::Pi()*gRandom->Rndm();
-   
+    //delta_phi=0;
+
+    // if(pippo>0.5) delta_th=-delta_th;
     
     double cd[3];
     double cdp[3];
@@ -251,12 +230,11 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 
 
   new_theta=TMath::ACos(cd[2]);
-  
-  new_phi=TMath::ATan(cd[1]/cd[0]);
+  new_phi=TMath::ATan2(cd[1],cd[0]);  //new_phi=TMath::ATan2(cd[1]/cd[0]);
+  //new_phi=2*TMath::Pi()*gRandom->Rndm();
 
-  if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
-  if(cd[0]<0 ) new_phi+=TMath::Pi();
-   
+  //if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
+  //if(cd[0]<0 )new_phi=TMath::Pi()-new_phi;   //new_phi+=TMath::Pi();
     
     
     n->SetEnergia(new_energy);

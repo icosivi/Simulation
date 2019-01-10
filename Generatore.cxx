@@ -40,7 +40,7 @@ Neutron* Generatore::Genera_neutrone(){
 
   double x0=this->x0p+(this->dx_p/2-this->dx_p*gRandom->Rndm()); 
   double y0=this->y0p+(this->dy_p/2-this->dy_p*gRandom->Rndm());
-  double z0=0; //per ora partiamo contro lo slab in x=0
+  double z0=0; 
 
   Punto *p=new Punto(x0,y0,z0);
   Retta *r=new Retta(p,0,0);

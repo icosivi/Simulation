@@ -19,7 +19,7 @@ class Generatore : public TObject
  public:
 
   //ho definito un generatore con x0 già settato a zero
-  Generatore(int N_particles,double E_iniziale,double dy_beam, double dz_beam, double y0, double z0);
+  Generatore(int N_particles,double E_iniziale,double dx_beam, double dy_beam, double x0, double y0);
   
 
   virtual ~Generatore();

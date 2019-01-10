@@ -41,21 +41,21 @@ Rivelatore::~Rivelatore(){
 void Rivelatore::Intersezione(Neutron *n){
 
   
-      if( !(n->GetAbsorption()) && n->GetZ()>=0 ){
+      if( n->GetZ()>=0 ){
     
           double vx=TMath::Sin(n->GetTheta())*TMath::Cos(n->GetPhi());
 	  double vy=TMath::Sin(n->GetTheta())*TMath::Sin(n->GetPhi());
 	  double vz=TMath::Cos(n->GetTheta());
 
 	  double beq=2*(vx*(n->GetX()-this->xp)+vy*(n->GetY()-this->yp)+vz*(n->GetZ()-this->zp));
-	  double ceq=TMath::Power(n->GetX(),2)+TMath::Power(n->GetY(),2)+TMath::Power(n->GetZ(),2)+TMath::Power(this->xp,2)-2*n->GetX()*this->xp+TMath::Power(this->yp,2)-2*n->GetY()*this->yp+TMath::Power(this->zp,2)-2*n->GetZ()*this->zp-(this->rp*this->rp);
+	  double ceq=TMath::Power(n->GetX()-this->xp,2)+TMath::Power(n->GetY()-this->yp,2)+TMath::Power(n->GetZ()-this->zp,2)-(this->rp*this->rp);
 
 	  double delta=beq*beq-4*ceq;
 	  double t_1=(0.5)*(-beq+TMath::Sqrt(delta));
 	  double t_2=(0.5)*(-beq-TMath::Sqrt(delta));
 
 	  
-	   if(delta>0){ this->tp=this->tp+TMath::Abs(t_1-t_2); }
+	   if(delta>0){ this->tp+=TMath::Abs(t_1-t_2);}
 	   
 		      
 
