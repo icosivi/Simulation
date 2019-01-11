@@ -38,7 +38,7 @@ Rivelatore::~Rivelatore(){
 
 
 
-void Rivelatore::Intersezione(Neutron *n){
+double Rivelatore::Intersezione(Neutron *n){
 
   
       if( n->GetZ()>=0 ){
@@ -55,7 +55,8 @@ void Rivelatore::Intersezione(Neutron *n){
 	  double t_2=(0.5)*(-beq-TMath::Sqrt(delta));
 
 	  
-	   if(delta>0){ this->tp+=TMath::Abs(t_1-t_2);}
+	   if(delta>0){ this->tp+=TMath::Abs(t_1-t_2);
+	     return TMath::Abs(t_1-t_2); }else{return 0;}
 	   
 		      
 

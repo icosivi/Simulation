@@ -16,14 +16,15 @@ ClassImp(Propagatore)
 
 
 
-Propagatore::Propagatore(TH1 *Cscatt, TH1 *Hscatt, TH1 *Cabs, TH1 *Habs, double target_side, double target_thickness, double density):TObject(),
+Propagatore::Propagatore(TH1 *Cscatt, TH1 *Hscatt, TH1 *Cabs, TH1 *Habs, double target_side, double target_thickness, double hdensity, double cdensity):TObject(),
   Cscattp(Cscatt),
   Hscattp(Hscatt),
   Cabsp(Cabs),
   Habsp(Habs),
   ptarget_side(target_side),
   ptarget_thickness(target_thickness),
-  pdensity(density){
+  hpdensity(hdensity),
+  cpdensity(cdensity){
 }
 
 
@@ -47,19 +48,19 @@ double Propagatore::x_interaction(double En){
   
   const TAxis *xaxis0=this->Cscattp->GetXaxis();
   int binx0=xaxis0->FindBin(En);
-  double sigma_csc=this->Cscattp->GetBinContent(binx0)*this->pdensity*(1e-24);  
+  double sigma_csc=this->Cscattp->GetBinContent(binx0)*this->cpdensity*(1e-24);  
 
   const TAxis *xaxis1=this->Hscattp->GetXaxis();
   int binx1=xaxis1->FindBin(En);
-  double sigma_hsc=this->Hscattp->GetBinContent(binx1)*this->pdensity*(1e-24);
+  double sigma_hsc=this->Hscattp->GetBinContent(binx1)*this->hpdensity*(1e-24);
 
   const TAxis *xaxis2=this->Cabsp->GetXaxis();
   int binx2=xaxis2->FindBin(En);
-  double sigma_cab=this->Cabsp->GetBinContent(binx2)*this->pdensity*(1e-24);
+  double sigma_cab=this->Cabsp->GetBinContent(binx2)*this->cpdensity*(1e-24);
 
   const TAxis *xaxis3=this->Habsp->GetXaxis();
   int binx3=xaxis3->FindBin(En);
-  double sigma_hab=this->Habsp->GetBinContent(binx3)*this->pdensity*(1e-24);
+  double sigma_hab=this->Habsp->GetBinContent(binx3)*this->hpdensity*(1e-24);
  
 
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
@@ -83,19 +84,19 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   
   const TAxis *xaxis0=this->Cscattp->GetXaxis();
   int binx0=xaxis0->FindBin(n->GetEnergy());
-  double sigma_csc=this->Cscattp->GetBinContent(binx0)*this->pdensity*(1e-24);  
+  double sigma_csc=this->Cscattp->GetBinContent(binx0)*this->cpdensity*(1e-24);  
 
   const TAxis *xaxis1=this->Hscattp->GetXaxis();
   int binx1=xaxis1->FindBin(n->GetEnergy());
-  double sigma_hsc=this->Hscattp->GetBinContent(binx1)*this->pdensity*(1e-24);
+  double sigma_hsc=this->Hscattp->GetBinContent(binx1)*this->hpdensity*(1e-24);
 
   const TAxis *xaxis2=this->Cabsp->GetXaxis();
   int binx2=xaxis2->FindBin(n->GetEnergy());
-  double sigma_cab=this->Cabsp->GetBinContent(binx2)*this->pdensity*(1e-24);
+  double sigma_cab=this->Cabsp->GetBinContent(binx2)*this->cpdensity*(1e-24);
 
   const TAxis *xaxis3=this->Habsp->GetXaxis();
   int binx3=xaxis3->FindBin(n->GetEnergy());
-  double sigma_hab=this->Habsp->GetBinContent(binx3)*this->pdensity*(1e-24);
+  double sigma_hab=this->Habsp->GetBinContent(binx3)*this->hpdensity*(1e-24);
 
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
   double sigma_abs=sigma_cab+sigma_hab;

@@ -20,7 +20,7 @@ class Propagatore : public TObject
 
   //Propagatore();
 //sto assumendo un target di sezione quadrata (ecco perchè solo un target_side)
-  Propagatore(TH1 *Cscatt, TH1 *Hscatt, TH1 *Cabs, TH1 *Habs, double target_side, double target_thickness, double density);
+  Propagatore(TH1 *Cscatt, TH1 *Hscatt, TH1 *Cabs, TH1 *Habs, double target_side, double target_thickness, double hdensity, double cdensity);
   
 
   virtual ~Propagatore();
@@ -40,7 +40,8 @@ class Propagatore : public TObject
   const TH1 *Habsp;
   double ptarget_side;
   double ptarget_thickness;
-  double pdensity;
+  double hpdensity;
+  double cpdensity;
 
   
   ClassDef(Propagatore,1)

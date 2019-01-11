@@ -6,6 +6,8 @@
 #include "TAxis.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "TH1D.h"
+#include "TCanvas.h"
 #include "TTree.h"
 #include "TBranch.h"
 #include "TClonesArray.h"
@@ -40,7 +42,8 @@ void Simulatore(){
    
   
 
-   const double polietilene_density=1.2e23;
+   const double hydrogen_density=8e22;
+   const double carbon_density=4e22;
    double Estart;
    double Nstart;
    double lateral_size;
@@ -73,42 +76,49 @@ void Simulatore(){
    cin >> shield_sphere_dist;
 
    
-   TFile file("neutroni","RECREATE");
-   TTree *tree=new TTree("tree","tree di neutroni uscenti");
+   //TFile file("neutroni","RECREATE");
+   //TTree *tree=new TTree("tree","tree di neutroni uscenti");
 
   
-  Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,polietilene_density);
+  Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,hydrogen_density,carbon_density);
   Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,x_start,y_start);
   Rivelatore *riv=new Rivelatore(radius,0,0,shield_sphere_dist+prop->GetTargetThick());
   Neutron *n;
   Neutron *n_out;
 
-  Neutron &nn_in=*n;
-  Neutron &nn_out=*n_out;
+  //Neutron &nn_in=*n;
+  //Neutron &nn_out=*n_out;
 
-  tree->Branch("nn_in",&nn_in);
-  tree->Branch("nn_out",&nn_out);
+  //tree->Branch("nn_in",&nn_in);
+  //tree->Branch("nn_out",&nn_out);
+  
+  TH1D *spectrum=new TH1D("spectrum","spectrum",1e6,0,1e6);
   
   for(int i=0;i<gen->GetParticles();i++){
    
     n=gen->Genera_neutrone();
     n_out=prop->Propagation(n);
     
-    riv->Intersezione(n_out);
-   
-    tree->Fill();
+     double length=riv->Intersezione(n_out);
+     if((n_out->GetEnergy()>0) && !(n_out->GetAbsorption()) && length!=0 ) {spectrum->Fill(n_out->GetEnergy(),length/riv->GetVolume());}
+    
+    
+    //tree->Fill();
   
  
   }
-
+ 
+  spectrum->GetXaxis()->SetTitle("Energy (eV)");
+  spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
+  spectrum->Draw();
   
-  file.Write();
-  file.Close();
+  //file.Write();
+  //file.Close();
 
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
   cout<<" "<<endl;
-
+  //cout<<"Fluence Spectrum per Starting Particle: "<<spectrum->Integral()/Nstart<<endl;
 
 }
 
