@@ -86,13 +86,36 @@ void Simulatore(){
   Neutron *n;
   Neutron *n_out;
 
+  double x_vec[461];
+
+
+  for(int i=0;i<=100;i++){
+    x_vec[i]=i;
+  }
+
+  for(int j=1;j<=90;j++){
+	x_vec[j+100]=100+j*10;
+      }
+
+  for(int j=1;j<=90;j++){
+	x_vec[j+190]=1000+j*100;
+      }
+
+   for(int j=1;j<=90;j++){
+	x_vec[j+280]=10000+j*1000;
+      }
+
+    for(int j=1;j<=90;j++){
+	x_vec[j+370]=100000+j*10000;
+	}
+    
   //Neutron &nn_in=*n;
   //Neutron &nn_out=*n_out;
 
   //tree->Branch("nn_in",&nn_in);
   //tree->Branch("nn_out",&nn_out);
   
-  TH1D *spectrum=new TH1D("spectrum","spectrum",1e6,0,1e6);
+    TH1D *spectrum=new TH1D("spectrum","spectrum",460,x_vec);  //x_vec deve avere dimensione nbins+1 !!!!
   
   for(int i=0;i<gen->GetParticles();i++){
    
@@ -100,7 +123,14 @@ void Simulatore(){
     n_out=prop->Propagation(n);
     
      double length=riv->Intersezione(n_out);
-     if((n_out->GetEnergy()>0) && !(n_out->GetAbsorption()) && length!=0 ) {spectrum->Fill(n_out->GetEnergy(),length/riv->GetVolume());}
+     
+     if((n_out->GetEnergy()>0) && !(n_out->GetAbsorption()) && length!=0 ) {
+
+       int bin=spectrum->FindBin(n_out->GetEnergy());
+       double deltaE=spectrum->GetBinWidth(bin);
+       spectrum->Fill(n_out->GetEnergy(),((length/riv->GetVolume())/deltaE)/Nstart); //fluence spectrum per starting particle
+
+     }
     
     
     //tree->Fill();
@@ -110,7 +140,7 @@ void Simulatore(){
  
   spectrum->GetXaxis()->SetTitle("Energy (eV)");
   spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
-  spectrum->Draw();
+  spectrum->Draw("HIST");
   
   //file.Write();
   //file.Close();
@@ -118,11 +148,15 @@ void Simulatore(){
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
   cout<<" "<<endl;
-  //cout<<"Fluence Spectrum per Starting Particle: "<<spectrum->Integral()/Nstart<<endl;
+ 
 
 }
 
 
 
+//DA AGGIUNGERE: distribuz. in energia neutroni uscenti, dose, numero medio di collisioni, tempo medio di computazione per neutrone (tra la generazione e l'intersezione/assorbimento), aggiungere le uncertainties, confronto con MCNP con S(alfa,beta) turned on and off (?)
 
-//DA AGGIUNGERE: fluence spectrum, distribuzione in energia neutroni
+
+//Opzione aggiuntiva: riempire un tree coi neutroni uscenti e utilizzarlo per l'analisi
+
+//Deadline: 10 Febbraio (report con nostri risultati)
