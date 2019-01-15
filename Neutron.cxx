@@ -80,9 +80,9 @@ void Neutron::SetNuovoPunto(double x_int){
   cout<<yy<<endl;
   cout<<" "<<endl;*/
 
-  this->fp->SetX(xx);
-  this->fp->SetY(yy);
-  this->fp->SetZ(zz);
+  this->fp.SetX(xx);
+  this->fp.SetY(yy);
+  this->fp.SetZ(zz);
 
 
 }

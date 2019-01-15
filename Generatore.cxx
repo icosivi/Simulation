@@ -43,7 +43,7 @@ void Generatore::Genera_neutrone(Neutron *n){
   double z0=0; 
 
   n->SetPunto(Punto(x0,y0,z0));
-  n->SetRetta(Retta(Punto(x0,y0,z0),0,0);
+  n->SetRetta(Retta(Punto(x0,y0,z0),0,0));
   n->SetEnergia(this->Ep);
   
   return;
