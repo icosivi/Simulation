@@ -6,11 +6,12 @@
 
 
 
+
 ClassImp(Retta)
 
 
 Retta::Retta():TObject(),
-  fth(0.),
+  fth(TMath::Pi()*0.5),
   fph(0.){
  
 }

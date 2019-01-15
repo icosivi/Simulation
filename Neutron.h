@@ -10,11 +10,11 @@ class Neutron : public TObject
 
  public:
 
-  Neutron();
-  Neutron(const Neutron&);
+  //eutron();
+  //Neutron(const Neutron&);
   Neutron(const Neutron *n);
-  Neutron(Punto p, Retta r, double Energy);
-  Neutron(Punto *p, Retta *r, double Energy);
+  //Neutron(Punto *p, Retta *r, double Energy);
+  Neutron();
   
 
 
@@ -35,6 +35,7 @@ class Neutron : public TObject
   void SetEnergia(double Enh){this->En=Enh;}
   void SetAbsorption(){this->Absorption=kTRUE;}
   void SetNuovoPunto(double x_int);
+  void Reset();
 
   
  private:

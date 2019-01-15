@@ -20,7 +20,7 @@ class Propagatore : public TObject
 
   //Propagatore();
 //sto assumendo un target di sezione quadrata (ecco perchè solo un target_side)
-  Propagatore(TH1 *Cscatt, TH1 *Hscatt, TH1 *Cabs, TH1 *Habs, double target_side, double target_thickness, double density);
+  Propagatore(TH1 *Cscatt, TH1 *Hscatt, TH1 *Cabs, TH1 *Habs, double target_side, double target_thickness, double hdensity, double cdensity);
   
 
   virtual ~Propagatore();
@@ -28,8 +28,9 @@ class Propagatore : public TObject
   
   double x_interaction(double En);
   Neutron* scattering(Neutron *n);
-  Neutron* Propagation(Neutron *n); 
+  void Propagation(Neutron *n); 
   double GetTargetThick() const {return ptarget_thickness;}
+  double GetNcoll() const {return pncollision;}
 
   
  private:
@@ -40,8 +41,9 @@ class Propagatore : public TObject
   const TH1 *Habsp;
   double ptarget_side;
   double ptarget_thickness;
-  double pdensity;
-
+  double hpdensity;
+  double cpdensity;
+  double pncollision;
   
   ClassDef(Propagatore,1)
   

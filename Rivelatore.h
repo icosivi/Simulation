@@ -24,7 +24,7 @@ class Rivelatore : public TObject
 
   virtual ~Rivelatore();
 
-  void Intersezione(Neutron *n);
+  double Intersezione(Neutron *n);
   double GetLength() const {return tp;}
   void SetLength(double ll){this->tp=ll;}
   double GetVolume() const {return (4/3)*TMath::Pi()*rp*rp*rp;}
