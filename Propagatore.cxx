@@ -186,8 +186,8 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   //if(cd[0]<0)  new_phi=TMath::Pi()-new_phi;   //new_phi+=TMath::Pi(); 
     
     n->SetEnergia(new_energy);
-    n->GetRetta()->SetTheta(new_theta);
-    n->GetRetta()->SetPhi(new_phi);
+    n->GetRetta().SetTheta(new_theta);
+    n->GetRetta().SetPhi(new_phi);
     
     return n;
     
@@ -247,14 +247,14 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
     
     
     n->SetEnergia(new_energy);
-    n->GetRetta()->SetTheta(new_theta);
-    n->GetRetta()->SetPhi(new_phi);
+    n->GetRetta().SetTheta(new_theta);
+    n->GetRetta().SetPhi(new_phi);
     
     return n;
      
   }
 
-
+return n;
 }
 
 

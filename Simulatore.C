@@ -23,18 +23,18 @@
 
 void Simulatore(){
 
-  gSystem->CompileMacro("Punto.cxx","kg");
-  gSystem->CompileMacro("Retta.cxx","kg");
-  gSystem->CompileMacro("Neutron.cxx","kg");
-  gSystem->CompileMacro("Propagatore.cxx","kg");
-  gSystem->CompileMacro("Generatore.cxx","kg");
-  gSystem->CompileMacro("Rivelatore.cxx","kg");
+  gSystem->CompileMacro("Punto.cxx","kgf");
+  gSystem->CompileMacro("Retta.cxx","kgf");
+  gSystem->CompileMacro("Neutron.cxx","kgf");
+  gSystem->CompileMacro("Propagatore.cxx","kgf");
+  gSystem->CompileMacro("Generatore.cxx","kgf");
+  gSystem->CompileMacro("Rivelatore.cxx","kgf");
 
   
-  TFile *f0=new TFile("Cabs.root","READ");
-  TFile *f1=new TFile("Habs.root","READ");
-  TFile *f2=new TFile("Cscat.root","READ");
-  TFile *f3=new TFile("Hscat.root","READ");
+  TFile *f0=new TFile("CrossSections/Cabs.root","READ");
+  TFile *f1=new TFile("CrossSections/Habs.root","READ");
+  TFile *f2=new TFile("CrossSections/Cscat.root","READ");
+  TFile *f3=new TFile("CrossSections/Hscat.root","READ");
 
    TH1F *h_Cabs=dynamic_cast<TH1F*>(f0->Get("C_absorption"));
    TH1F *h_Habs=dynamic_cast<TH1F*>(f1->Get("H_absorption"));
@@ -108,14 +108,15 @@ void Simulatore(){
 
   
     Neutron *n_in=new Neutron();
-    Neutron *n_out;
+    Neutron *n_out=new Neutron();
     
     //Neutron &nn_in=*n;
     // Neutron &nn_out=*n_out;
 
-    //TTree *tree=new TTree("tree","tree di neutroni uscenti");
-    //tree->Branch("n_in",&n_in);
-    //tree->Branch("n_out",&n_out);
+    TFile *outFile=new TFile("neutronTree.root","RECREATE");
+    TTree *tree=new TTree("tree","tree di neutroni uscenti");
+    tree->Branch("n_in",&n_in,32000,2);
+    tree->Branch("n_out",&n_out,32000,2);
 
     TCanvas *c1=new TCanvas("c1","c1",1200,800);
     TCanvas *c2=new TCanvas("c2","c2",1200,800);
@@ -151,25 +152,31 @@ void Simulatore(){
      }
     
     
-     //tree->Fill();
+    tree->Fill();
     n_in->Reset();
   
  
   }
 
-  c1->cd();
-  spectrum->GetXaxis()->SetTitle("Energy (eV)");
-  spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
-  spectrum->Draw("HIST");
+  tree->Write();
+  delete tree;
+  delete n_in;
+  delete n_out;
+  outFile->Close();
 
-  c2->cd();
-  en_distrib->SetTitle("Distribuzione Energia neutroni uscenti");
-  en_distrib->GetXaxis()->SetTitle("eV");
-  en_distrib->GetYaxis()->SetTitle("Counts/#Delta E");
-  en_distrib->Draw("HIST");
+  // c1->cd();
+  // spectrum->GetXaxis()->SetTitle("Energy (eV)");
+  // spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
+  // spectrum->Draw("HIST");
 
-  c1->Close();
-  c2->Close();
+  // c2->cd();
+  // en_distrib->SetTitle("Distribuzione Energia neutroni uscenti");
+  // en_distrib->GetXaxis()->SetTitle("eV");
+  // en_distrib->GetYaxis()->SetTitle("Counts/#Delta E");
+  // en_distrib->Draw("HIST");
+
+  // c1->Close();
+  // c2->Close();
   
   //file.Write();
   //file.Close();
@@ -177,7 +184,7 @@ void Simulatore(){
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
   cout<<" "<<endl;
-  cout<<"Mean number of collision: "<<prop->GetNcoll()/Nstart<<endl;
+  cout<<"Mean number of collisions: "<<prop->GetNcoll()/Nstart<<endl;
   cout<<" "<<endl;
   cout<<"Mean CPU time per neutron: "<<time/Nstart<<endl;
   cout<<" "<<endl;
