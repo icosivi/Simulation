@@ -25,7 +25,7 @@ class Generatore : public TObject
   virtual ~Generatore();
 
   
-  Neutron* Genera_neutrone();
+  void Genera_neutrone(Neutron *n);
   int GetParticles() const {return Np;}
   double GetEn() const {return Ep;}
   double Getdy() const {return dy_p;}

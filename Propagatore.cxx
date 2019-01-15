@@ -110,6 +110,14 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   double interaction_type=gRandom->Rndm();
   //double pippo=gRandom->Rndm();
 
+  /*cout<<sigma_csc<<endl;
+  cout<<sigma_hsc<<endl;
+  cout<<sigma_cab<<endl;
+  cout<<sigma_hab<<endl;
+  cout<<" "<<endl;*/
+
+  //if(sigma_csc==0 || sigma_hsc==0 || sigma_cab==0 || sigma_hab==0) cout<<"pippo"<<endl;
+
   double new_energy;
   double delta_th;
   double new_theta;
@@ -252,7 +260,7 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
 
 
 
-Neutron* Propagatore::Propagation(Neutron *n){
+void Propagatore::Propagation(Neutron *n){
 
   bool contr=kTRUE;
   bool verbosity=kFALSE;
@@ -274,13 +282,14 @@ Neutron* Propagatore::Propagation(Neutron *n){
       if( n->GetZ()>=0 && n->GetZ()<=this->ptarget_thickness && n->GetY()>=-(0.5)*this->ptarget_side &&  n->GetY()<=(0.5)*this->ptarget_side && n->GetX()>=-(0.5)*this->ptarget_side && n->GetX()<=(0.5)*this->ptarget_side ){
 	
 	this->scattering(n);
+	this->pncollision+=1;
 
       }else{contr=kFALSE; }
 
 
  }
  
- return n;
+ return;
 
 
 }

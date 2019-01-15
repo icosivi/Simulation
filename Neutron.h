@@ -12,35 +12,36 @@ class Neutron : public TObject
 
   //eutron();
   //Neutron(const Neutron&);
-  //Neutron(const Neutron *n);
-  Neutron(Punto *p, Retta *r, double Energy);
+  Neutron(const Neutron *n);
   //Neutron(Punto *p, Retta *r, double Energy);
+  Neutron();
   
 
 
 
   virtual ~Neutron();
 
-  Punto* GetPunto() const {return fp;}
-  Retta* GetRetta() const {return fr;}
-  double GetX() const {return fp->GetX();}  //GetY
-  double GetY() const {return fp->GetY();}  //GetX
-  double GetZ() const {return fp->GetZ();}
-  double GetTheta() const {return fr->GetTheta();}
-  double GetPhi() const {return fr->GetPhi();}
+  Punto GetPunto() const {return fp;}
+  Retta GetRetta() const {return fr;}
+  double GetX() const {return fp.GetX();}  //GetY
+  double GetY() const {return fp.GetY();}  //GetX
+  double GetZ() const {return fp.GetZ();}
+  double GetTheta() const {return fr.GetTheta();}
+  double GetPhi() const {return fr.GetPhi();}
   double GetEnergy() const {return En;}
   bool GetAbsorption() const {return Absorption;}
-  //void SetPunto(Punto fph){this->fp=fph;}
-  //void SetRetta(Retta frh){this->fr=frh;}
+  void SetPunto(Punto fph){this->fp=fph;}
+  void SetRetta(Retta frh){this->fr=frh;}
   void SetEnergia(double Enh){this->En=Enh;}
   void SetAbsorption(){this->Absorption=kTRUE;}
   void SetNuovoPunto(double x_int);
+  void Reset();
 
   
  private:
   
-  Punto *fp;
-  Retta *fr;
+  Punto fp;
+  Retta fr;
   double En;
   bool Absorption;
   

@@ -20,8 +20,8 @@ class Retta : public TObject
   virtual ~Retta();
 
   Punto GetPunto() const {return fp;}
-  double GetX() const {return fp.GetX();}  //GetY
-  double GetY() const {return fp.GetY();}  //GetX
+  double GetX() const {return fp.GetX();} 
+  double GetY() const {return fp.GetY();}  
   double GetZ() const {return fp.GetZ();}
   double GetTheta() const {return fth;}
   double GetPhi() const {return fph;}

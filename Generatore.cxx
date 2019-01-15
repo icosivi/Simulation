@@ -36,20 +36,17 @@ Generatore::~Generatore(){
 //-------------------------------------------
 
 
-Neutron* Generatore::Genera_neutrone(){
+void Generatore::Genera_neutrone(Neutron *n){
 
   double x0=this->x0p+(this->dx_p/2-this->dx_p*gRandom->Rndm()); 
   double y0=this->y0p+(this->dy_p/2-this->dy_p*gRandom->Rndm());
   double z0=0; 
 
-  Punto *p=new Punto(x0,y0,z0);
-  Retta *r=new Retta(p,0,0);
-  Neutron *n=new Neutron(p,r,this->Ep);
-
-  //delete p;////
-  //delete r;////
+  n->SetPunto(Punto(x0,y0,z0));
+  n->SetRetta(Retta(Punto(x0,y0,z0),0,0);
+  n->SetEnergia(this->Ep);
   
-  return n;
+  return;
 
 
 }

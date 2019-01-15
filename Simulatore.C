@@ -2,6 +2,7 @@
 #include <Riostream.h>
 #include "TObject.h"
 #include "TSystem.h"
+#include "TStopwatch.h"
 #include "TMath.h"
 #include "TAxis.h"
 #include "TFile.h"
@@ -77,14 +78,10 @@ void Simulatore(){
 
    
    //TFile file("neutroni","RECREATE");
-   //TTree *tree=new TTree("tree","tree di neutroni uscenti");
-
   
   Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,hydrogen_density,carbon_density);
   Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,x_start,y_start);
   Rivelatore *riv=new Rivelatore(radius,0,0,shield_sphere_dist+prop->GetTargetThick());
-  Neutron *n;
-  Neutron *n_out;
 
   double x_vec[461];
 
@@ -108,19 +105,39 @@ void Simulatore(){
     for(int j=1;j<=90;j++){
 	x_vec[j+370]=100000+j*10000;
 	}
-    
-  //Neutron &nn_in=*n;
-  //Neutron &nn_out=*n_out;
 
-  //tree->Branch("nn_in",&nn_in);
-  //tree->Branch("nn_out",&nn_out);
+  
+    Neutron *n_in=new Neutron();
+    Neutron *n_out;
+    
+    //Neutron &nn_in=*n;
+    // Neutron &nn_out=*n_out;
+
+    //TTree *tree=new TTree("tree","tree di neutroni uscenti");
+    //tree->Branch("n_in",&n_in);
+    //tree->Branch("n_out",&n_out);
+
+    TCanvas *c1=new TCanvas("c1","c1",1200,800);
+    TCanvas *c2=new TCanvas("c2","c2",1200,800);
   
     TH1D *spectrum=new TH1D("spectrum","spectrum",460,x_vec);  //x_vec deve avere dimensione nbins+1 !!!!
+    TH1D *en_distrib=new TH1D("en distrib","en distrib",460,x_vec); 
+
+    TStopwatch *watch=new TStopwatch();
+    double time=0;
+   
   
   for(int i=0;i<gen->GetParticles();i++){
-   
-    n=gen->Genera_neutrone();
-    n_out=prop->Propagation(n);
+    
+    watch->Start();
+    
+    gen->Genera_neutrone(n_in);
+    *n_out=Neutron(n_in);
+    prop->Propagation(n_out);
+
+    watch->Stop();
+    time+=watch->RealTime();
+    
     
      double length=riv->Intersezione(n_out);
      
@@ -129,18 +146,30 @@ void Simulatore(){
        int bin=spectrum->FindBin(n_out->GetEnergy());
        double deltaE=spectrum->GetBinWidth(bin);
        spectrum->Fill(n_out->GetEnergy(),((length/riv->GetVolume())/deltaE)/Nstart); //fluence spectrum per starting particle
+       en_distrib->Fill(n_out->GetEnergy(),1./deltaE);
 
      }
     
     
-    //tree->Fill();
+     //tree->Fill();
+    n_in->Reset();
   
  
   }
- 
+
+  c1->cd();
   spectrum->GetXaxis()->SetTitle("Energy (eV)");
   spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
   spectrum->Draw("HIST");
+
+  c2->cd();
+  en_distrib->SetTitle("Distribuzione Energia neutroni uscenti");
+  en_distrib->GetXaxis()->SetTitle("eV");
+  en_distrib->GetYaxis()->SetTitle("Counts/#Delta E");
+  en_distrib->Draw("HIST");
+
+  c1->Close();
+  c2->Close();
   
   //file.Write();
   //file.Close();
@@ -148,14 +177,19 @@ void Simulatore(){
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
   cout<<" "<<endl;
+  cout<<"Mean number of collision: "<<prop->GetNcoll()/Nstart<<endl;
+  cout<<" "<<endl;
+  cout<<"Mean CPU time per neutron: "<<time/Nstart<<endl;
+  cout<<" "<<endl;
  
 
 }
 
 
 
-//DA AGGIUNGERE: distribuz. in energia neutroni uscenti, dose, numero medio di collisioni, tempo medio di computazione per neutrone (tra la generazione e l'intersezione/assorbimento), aggiungere le uncertainties, confronto con MCNP con S(alfa,beta) turned on and off (?)
+//DA AGGIUNGERE: dose, aggiungere le uncertainties, confronto con MCNP con S(alfa,beta) turned on and off (?)
 
+//DA SISTEMARE: sezioni d'urto con bin vuoti
 
 //Opzione aggiuntiva: riempire un tree coi neutroni uscenti e utilizzarlo per l'analisi
 

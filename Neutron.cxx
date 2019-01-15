@@ -21,7 +21,7 @@ Neutron::Neutron(const Neutron&n):TObject(),
   Absorption(n.Absorption),
   En(n.En){
   
-}
+}*/
 
 Neutron::Neutron(const Neutron *n):TObject(),
   fp(n->fp),
@@ -29,24 +29,24 @@ Neutron::Neutron(const Neutron *n):TObject(),
   Absorption(n->Absorption),
   En(n->En){
   
-  }*/
+  }
 
-Neutron::Neutron(Punto *p,Retta *r,double Energy):TObject(),
+/*Neutron::Neutron(Punto *p,Retta *r,double Energy):TObject(),
   fp(p),
   fr(r),
   En(Energy),
   Absorption(kFALSE){
 
-  }
+  }*/
 
 
-/*Neutron::Neutron(Punto *p,Retta *r,double Energy):TObject(),
-  fp(*p),
-  fr(*r),
-  En(Energy),
+Neutron::Neutron():TObject(),
+  fp(Punto(-999,-999,-999)),
+  fr(Retta(Punto(-999,-999,-999),999,999)),
+  En(-1),
   Absorption(kFALSE){
 
-  }*/
+  }
 
 
 Neutron::~Neutron(){
@@ -56,6 +56,18 @@ Neutron::~Neutron(){
 
 
 //---------------------------------------------------------------------------------------
+
+
+void Neutron::Reset(){
+
+  this->fp=Punto(-999,-999,-999);
+  this->fr=Retta(Punto(-999,-999,-999),999,999);
+  this->En=-1;
+  this->Absorption=kFALSE;
+
+}
+
+
 
 void Neutron::SetNuovoPunto(double x_int){
 

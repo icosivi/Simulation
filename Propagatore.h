@@ -28,8 +28,9 @@ class Propagatore : public TObject
   
   double x_interaction(double En);
   Neutron* scattering(Neutron *n);
-  Neutron* Propagation(Neutron *n); 
+  void Propagation(Neutron *n); 
   double GetTargetThick() const {return ptarget_thickness;}
+  double GetNcoll() const {return pncollision;}
 
   
  private:
@@ -42,7 +43,7 @@ class Propagatore : public TObject
   double ptarget_thickness;
   double hpdensity;
   double cpdensity;
-
+  double pncollision;
   
   ClassDef(Propagatore,1)
   
