@@ -32,6 +32,8 @@ class Neutron : public TObject
   bool GetAbsorption() const {return Absorption;}
   void SetPunto(Punto fph){this->fp=fph;}
   void SetRetta(Retta frh){this->fr=frh;}
+  void SetTheta(double theta){this->fr.SetTheta(theta);}
+  void SetPhi(double phi){this->fr.SetPhi(phi);}
   void SetEnergia(double Enh){this->En=Enh;}
   void SetAbsorption(){this->Absorption=kTRUE;}
   void SetNuovoPunto(double x_int);

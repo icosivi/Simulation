@@ -61,5 +61,5 @@ double Rivelatore::Intersezione(Neutron *n){
 		      
 
   }
-  return -999;
+  return 0;
 }

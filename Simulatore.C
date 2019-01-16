@@ -1,7 +1,7 @@
 //#if !defined(__CINT__) || defined(__MAKECINT__))
 #include <Riostream.h>
-#include "TObject.h"
-#include "TSystem.h"
+#include <TObject.h>
+#include <TSystem.h>
 #include "TStopwatch.h"
 #include "TMath.h"
 #include "TAxis.h"
@@ -9,8 +9,8 @@
 #include "TH1.h"
 #include "TH1D.h"
 #include "TCanvas.h"
-#include "TTree.h"
-#include "TBranch.h"
+#include <TTree.h>
+#include <TBranch.h>
 #include "TClonesArray.h"
 #include "TRandom3.h"
 #include "Punto.h"
@@ -115,8 +115,8 @@ void Simulatore(){
 
     TFile *outFile=new TFile("neutronTree.root","RECREATE");
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
-    tree->Branch("n_in",&n_in,32000,2);
-    tree->Branch("n_out",&n_out,32000,2);
+    //tree->Branch("n_in",&n_in,32000,2);
+    //tree->Branch("n_out",&n_out,32000,2);
 
     TCanvas *c1=new TCanvas("c1","c1",1200,800);
     TCanvas *c2=new TCanvas("c2","c2",1200,800);
@@ -152,13 +152,13 @@ void Simulatore(){
      }
     
     
-    tree->Fill();
+     //tree->Fill();
     n_in->Reset();
   
  
   }
 
-  tree->Write();
+  //tree->Write();
   delete tree;
   delete n_in;
   delete n_out;
