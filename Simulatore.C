@@ -23,12 +23,12 @@
 
 void Simulatore(){
 
-  gSystem->CompileMacro("Punto.cxx","kgf");
-  gSystem->CompileMacro("Retta.cxx","kgf");
-  gSystem->CompileMacro("Neutron.cxx","kgf");
-  gSystem->CompileMacro("Propagatore.cxx","kgf");
-  gSystem->CompileMacro("Generatore.cxx","kgf");
-  gSystem->CompileMacro("Rivelatore.cxx","kgf");
+  gSystem->CompileMacro("Punto.cxx","kg");
+  gSystem->CompileMacro("Retta.cxx","kg");
+  gSystem->CompileMacro("Neutron.cxx","kg");
+  gSystem->CompileMacro("Propagatore.cxx","kg");
+  gSystem->CompileMacro("Generatore.cxx","kg");
+  gSystem->CompileMacro("Rivelatore.cxx","kg");
 
   
   TFile *f0=new TFile("CrossSections/Cabs.root","READ");
@@ -115,8 +115,8 @@ void Simulatore(){
 
     TFile *outFile=new TFile("neutronTree.root","RECREATE");
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
-    //tree->Branch("n_in",&n_in,32000,2);
-    //tree->Branch("n_out",&n_out,32000,2);
+    tree->Branch("n_in",&n_in,32000,2);
+    tree->Branch("n_out",&n_out,32000,2);
 
     TCanvas *c1=new TCanvas("c1","c1",1200,800);
     TCanvas *c2=new TCanvas("c2","c2",1200,800);
@@ -152,13 +152,13 @@ void Simulatore(){
      }
     
     
-     //tree->Fill();
+     tree->Fill();
     n_in->Reset();
   
  
   }
 
-  //tree->Write();
+  tree->Write();
   delete tree;
   delete n_in;
   delete n_out;
