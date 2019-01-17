@@ -26,10 +26,8 @@ Neutron::Neutron(const Neutron&n):TObject(),
 Neutron::Neutron(const Neutron *n):TObject(),
   fp(n->fp),
   fr(n->fr),
-  Absorption(n->Absorption),
-  En(n->En){
-  
-  }
+  En(n->En),
+  Absorption(n->Absorption){}
 
 /*Neutron::Neutron(Punto *p,Retta *r,double Energy):TObject(),
   fp(p),

@@ -46,20 +46,20 @@ Propagatore::~Propagatore(){
 
 double Propagatore::x_interaction(double En){
   
-  const TAxis *xaxis0=this->Cscattp->GetXaxis();
-  int binx0=xaxis0->FindBin(En);
+  TAxis xaxis0=*(this->Cscattp->GetXaxis());
+  int binx0=xaxis0.FindBin(En);
   double sigma_csc=this->Cscattp->GetBinContent(binx0)*this->cpdensity*(1e-24);  
 
-  const TAxis *xaxis1=this->Hscattp->GetXaxis();
-  int binx1=xaxis1->FindBin(En);
+  TAxis xaxis1=*(this->Hscattp->GetXaxis());
+  int binx1=xaxis1.FindBin(En);
   double sigma_hsc=this->Hscattp->GetBinContent(binx1)*this->hpdensity*(1e-24);
 
-  const TAxis *xaxis2=this->Cabsp->GetXaxis();
-  int binx2=xaxis2->FindBin(En);
+  TAxis xaxis2=*(this->Cabsp->GetXaxis());
+  int binx2=xaxis2.FindBin(En);
   double sigma_cab=this->Cabsp->GetBinContent(binx2)*this->cpdensity*(1e-24);
 
-  const TAxis *xaxis3=this->Habsp->GetXaxis();
-  int binx3=xaxis3->FindBin(En);
+  TAxis xaxis3=*(this->Habsp->GetXaxis());
+  int binx3=xaxis3.FindBin(En);
   double sigma_hab=this->Habsp->GetBinContent(binx3)*this->hpdensity*(1e-24);
  
 
@@ -82,27 +82,26 @@ double Propagatore::x_interaction(double En){
 
 Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei non ritornare nulla, ma non dovrebbe essere un problema 
   
-  const TAxis *xaxis0=this->Cscattp->GetXaxis();
-  int binx0=xaxis0->FindBin(n->GetEnergy());
+  TAxis xaxis0=*(this->Cscattp->GetXaxis());
+  int binx0=xaxis0.FindBin(n->GetEnergy());
   double sigma_csc=this->Cscattp->GetBinContent(binx0)*this->cpdensity*(1e-24);  
 
-  const TAxis *xaxis1=this->Hscattp->GetXaxis();
-  int binx1=xaxis1->FindBin(n->GetEnergy());
+  TAxis xaxis1=*(this->Hscattp->GetXaxis());
+  int binx1=xaxis1.FindBin(n->GetEnergy());
   double sigma_hsc=this->Hscattp->GetBinContent(binx1)*this->hpdensity*(1e-24);
 
-  const TAxis *xaxis2=this->Cabsp->GetXaxis();
-  int binx2=xaxis2->FindBin(n->GetEnergy());
+  TAxis xaxis2=*(this->Cabsp->GetXaxis());
+  int binx2=xaxis2.FindBin(n->GetEnergy());
   double sigma_cab=this->Cabsp->GetBinContent(binx2)*this->cpdensity*(1e-24);
 
-  const TAxis *xaxis3=this->Habsp->GetXaxis();
-  int binx3=xaxis3->FindBin(n->GetEnergy());
+  TAxis xaxis3=*(this->Habsp->GetXaxis());
+  int binx3=xaxis3.FindBin(n->GetEnergy());
   double sigma_hab=this->Habsp->GetBinContent(binx3)*this->hpdensity*(1e-24);
 
   double sigma_tot=sigma_csc+sigma_hsc+sigma_cab+sigma_hab;
   double sigma_abs=sigma_cab+sigma_hab;
 
   double absorption_limit=sigma_abs/sigma_tot;
-  double carbon_scatt=sigma_csc/sigma_tot;
   double hidrogen_scatt=sigma_hsc/sigma_tot;
 
   double alfa_cm=TMath::ACos(1.-2*gRandom->Rndm());  //angolo theta nel CM, uniforme tra -1 ed 1
@@ -127,13 +126,9 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   
 
   if(interaction_type<=absorption_limit){
-
     n->SetAbsorption();
     return n;
-
   }
-
-  
 
   if(interaction_type>absorption_limit && interaction_type<=(absorption_limit+hidrogen_scatt)){  //il nucleo scelto è l'idrogeno 
 
@@ -154,47 +149,44 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
     double phi=n->GetPhi();
     double theta=n->GetTheta();
 
-  mr[0][0]=-TMath::Sin(phi);
-  mr[1][0]=TMath::Cos(phi);
-  mr[2][0]=0.;
-  mr[0][1]=-TMath::Cos(phi)*TMath::Cos(theta);
-  mr[1][1]=-TMath::Cos(theta)*TMath::Sin(phi);
-  mr[2][1]=TMath::Sin(theta);
-  mr[0][2]=TMath::Sin(theta)*TMath::Cos(phi);
-  mr[1][2]=TMath::Sin(theta)*TMath::Sin(phi);
-  mr[2][2]=TMath::Cos(theta);
+    mr[0][0]=-TMath::Sin(phi);
+    mr[1][0]=TMath::Cos(phi);
+    mr[2][0]=0.;
+    mr[0][1]=-TMath::Cos(phi)*TMath::Cos(theta);
+    mr[1][1]=-TMath::Cos(theta)*TMath::Sin(phi);
+    mr[2][1]=TMath::Sin(theta);
+    mr[0][2]=TMath::Sin(theta)*TMath::Cos(phi);
+    mr[1][2]=TMath::Sin(theta)*TMath::Sin(phi);
+    mr[2][2]=TMath::Cos(theta);
 
-  
-  cdp[0]=TMath::Sin(delta_th)*TMath::Cos(delta_phi);            
-  cdp[1]=TMath::Sin(delta_th)*TMath::Sin(delta_phi);           
-  cdp[2]=TMath::Cos(delta_th);
-
-  for(int i=0;i<3;i++){
-    cd[i]=0.;
-    for(int j=0;j<3;j++){
-      cd[i]+=mr[i][j]*cdp[j];
-    }
-    }
-
-
-  new_theta=TMath::ACos(cd[2]);
-  
-  new_phi=TMath::ATan2(cd[1],cd[0]);  //new_phi=TMath::ATan2(cd[1]/cd[0]);
-  //new_phi=2*TMath::Pi()*gRandom->Rndm();
-
-  //if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
-  //if(cd[0]<0)  new_phi=TMath::Pi()-new_phi;   //new_phi+=TMath::Pi(); 
     
+    cdp[0]=TMath::Sin(delta_th)*TMath::Cos(delta_phi);            
+    cdp[1]=TMath::Sin(delta_th)*TMath::Sin(delta_phi);           
+    cdp[2]=TMath::Cos(delta_th);
+
+    for(int i=0;i<3;i++){
+      cd[i]=0.;
+      for(int j=0;j<3;j++){
+        cd[i]+=mr[i][j]*cdp[j];
+      }
+    }
+
+
+    new_theta=TMath::ACos(cd[2]);
+    
+    new_phi=TMath::ATan2(cd[1],cd[0]);  //new_phi=TMath::ATan2(cd[1]/cd[0]);
+    //new_phi=2*TMath::Pi()*gRandom->Rndm();
+
+    //if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
+    //if(cd[0]<0)  new_phi=TMath::Pi()-new_phi;   //new_phi+=TMath::Pi(); 
+      
     n->SetEnergia(new_energy);
     n->SetTheta(new_theta);
     n->SetPhi(new_phi);
 
     
     return n;
-    
   }
-
-  
 
   if(interaction_type>(absorption_limit+hidrogen_scatt)){  //il nucleo scelto è il carbonio
   
@@ -215,36 +207,36 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
     double phi=n->GetPhi();
     double theta=n->GetTheta();
 
-  mr[0][0]=-TMath::Sin(phi);
-  mr[1][0]=TMath::Cos(phi);
-  mr[2][0]=0.;
-  mr[0][1]=-TMath::Cos(phi)*TMath::Cos(theta);
-  mr[1][1]=-TMath::Cos(theta)*TMath::Sin(phi);
-  mr[2][1]=TMath::Sin(theta);
-  mr[0][2]=TMath::Sin(theta)*TMath::Cos(phi);
-  mr[1][2]=TMath::Sin(theta)*TMath::Sin(phi);
-  mr[2][2]=TMath::Cos(theta);
+    mr[0][0]=-TMath::Sin(phi);
+    mr[1][0]=TMath::Cos(phi);
+    mr[2][0]=0.;
+    mr[0][1]=-TMath::Cos(phi)*TMath::Cos(theta);
+    mr[1][1]=-TMath::Cos(theta)*TMath::Sin(phi);
+    mr[2][1]=TMath::Sin(theta);
+    mr[0][2]=TMath::Sin(theta)*TMath::Cos(phi);
+    mr[1][2]=TMath::Sin(theta)*TMath::Sin(phi);
+    mr[2][2]=TMath::Cos(theta);
 
-  
-  cdp[0]=TMath::Sin(delta_th)*TMath::Cos(delta_phi);             
-  cdp[1]=TMath::Sin(delta_th)*TMath::Sin(delta_phi);          
-  cdp[2]=TMath::Cos(delta_th);
-  
+    
+    cdp[0]=TMath::Sin(delta_th)*TMath::Cos(delta_phi);             
+    cdp[1]=TMath::Sin(delta_th)*TMath::Sin(delta_phi);          
+    cdp[2]=TMath::Cos(delta_th);
+    
 
-  for(int i=0;i<3;i++){
-    cd[i]=0.;
-    for(int j=0;j<3;j++){
-      cd[i]+=mr[i][j]*cdp[j];
+    for(int i=0;i<3;i++){
+      cd[i]=0.;
+      for(int j=0;j<3;j++){
+        cd[i]+=mr[i][j]*cdp[j];
+      }
     }
-    }
 
 
-  new_theta=TMath::ACos(cd[2]);
-  new_phi=TMath::ATan2(cd[1],cd[0]);  //new_phi=TMath::ATan2(cd[1]/cd[0]);
-  //new_phi=2*TMath::Pi()*gRandom->Rndm();
+    new_theta=TMath::ACos(cd[2]);
+    new_phi=TMath::ATan2(cd[1],cd[0]);  //new_phi=TMath::ATan2(cd[1]/cd[0]);
+    //new_phi=2*TMath::Pi()*gRandom->Rndm();
 
-  //if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
-  //if(cd[0]<0 )new_phi=TMath::Pi()-new_phi;   //new_phi+=TMath::Pi();
+    //if(cd[0]>0 && cd[1]<0) new_phi+=2*TMath::Pi();
+    //if(cd[0]<0 )new_phi=TMath::Pi()-new_phi;   //new_phi+=TMath::Pi();
     
     
     n->SetEnergia(new_energy);
@@ -254,11 +246,11 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
     //cout<<new_theta<<" "<<n->GetRetta().GetTheta()<<endl;
     //cout<<new_phi<<" "<<n->GetRetta().GetPhi()<<endl;
     
-    return n;
-     
+    return n;   
   }
 
-  //return n;
+  cout << "ATTENZIONE: TIPO DI INTERAZIONE NON RICONOSCIUTO" << endl;
+  return n;
 }
 
 

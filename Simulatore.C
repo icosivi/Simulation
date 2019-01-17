@@ -19,17 +19,9 @@
 #include "Propagatore.h"
 #include "Generatore.h"
 #include "Rivelatore.h"
-
+  
 
 void Simulatore(){
-
-  gSystem->CompileMacro("Punto.cxx","kg");
-  gSystem->CompileMacro("Retta.cxx","kg");
-  gSystem->CompileMacro("Neutron.cxx","kg");
-  gSystem->CompileMacro("Propagatore.cxx","kg");
-  gSystem->CompileMacro("Generatore.cxx","kg");
-  gSystem->CompileMacro("Rivelatore.cxx","kg");
-
   
   TFile *f0=new TFile("CrossSections/Cabs.root","READ");
   TFile *f1=new TFile("CrossSections/Habs.root","READ");
@@ -54,8 +46,6 @@ void Simulatore(){
    double x_start=0;
    double radius;
    double shield_sphere_dist;
-   double y_centro=0;//sono le coordinate del centro della sfera, per ora sono a zero
-   double x_centro=0;
 
    double seed=0.1;
    gRandom->SetSeed(seed);
@@ -91,20 +81,20 @@ void Simulatore(){
   }
 
   for(int j=1;j<=90;j++){
-	x_vec[j+100]=100+j*10;
+  x_vec[j+100]=100+j*10;
       }
 
   for(int j=1;j<=90;j++){
-	x_vec[j+190]=1000+j*100;
+  x_vec[j+190]=1000+j*100;
       }
 
    for(int j=1;j<=90;j++){
-	x_vec[j+280]=10000+j*1000;
+  x_vec[j+280]=10000+j*1000;
       }
 
     for(int j=1;j<=90;j++){
-	x_vec[j+370]=100000+j*10000;
-	}
+  x_vec[j+370]=100000+j*10000;
+  }
 
   
     Neutron *n_in=new Neutron();
@@ -115,11 +105,12 @@ void Simulatore(){
 
     TFile *outFile=new TFile("neutronTree.root","RECREATE");
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
-    tree->Branch("n_in",&n_in,32000,2);
+
+    tree->Branch("n_in",n_in,32000,2);
     tree->Branch("n_out",&n_out,32000,2);
 
-    TCanvas *c1=new TCanvas("c1","c1",1200,800);
-    TCanvas *c2=new TCanvas("c2","c2",1200,800);
+    // TCanvas *c1=new TCanvas("c1","c1",1200,800);
+    // TCanvas *c2=new TCanvas("c2","c2",1200,800);
   
     TH1D *spectrum=new TH1D("spectrum","spectrum",460,x_vec);  //x_vec deve avere dimensione nbins+1 !!!!
     TH1D *en_distrib=new TH1D("en distrib","en distrib",460,x_vec); 
@@ -159,7 +150,6 @@ void Simulatore(){
   }
 
   tree->Write();
-  delete tree;
   delete n_in;
   delete n_out;
   outFile->Close();
@@ -177,9 +167,6 @@ void Simulatore(){
 
   // c1->Close();
   // c2->Close();
-  
-  //file.Write();
-  //file.Close();
 
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
