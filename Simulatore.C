@@ -66,8 +66,6 @@ void Simulatore(){
    cout << "Distance shield-sphere centre (mm) " << endl;
    cin >> shield_sphere_dist;
 
-   
-   //TFile file("neutroni","RECREATE");
   
   Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,hydrogen_density,carbon_density);
   Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,x_start,y_start);
@@ -99,9 +97,6 @@ void Simulatore(){
   
     Neutron *n_in=new Neutron();
     Neutron *n_out=new Neutron();
-    
-    //Neutron &nn_in=*n;
-    //Neutron &nn_out=*n_out;
 
     TFile *outFile=new TFile("neutronTree.root","RECREATE");
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
@@ -110,26 +105,19 @@ void Simulatore(){
     tree->Branch("n_out",&n_out,32000,2);
 
     // TCanvas *c1=new TCanvas("c1","c1",1200,800);
-    // TCanvas *c2=new TCanvas("c2","c2",1200,800);
   
     TH1D *spectrum=new TH1D("spectrum","spectrum",460,x_vec);  //x_vec deve avere dimensione nbins+1 !!!!
-    //TH1D *en_distrib=new TH1D("en distrib","en distrib",460,x_vec); 
 
     TStopwatch *watch=new TStopwatch();
     double time=0;
    
-  
+   watch->Start();
+   
   for(int i=0;i<gen->GetParticles();i++){
-    
-    watch->Start();
     
     gen->Genera_neutrone(n_in);
     *n_out=Neutron(n_in);
-    prop->Propagation(n_out);
-
-    watch->Stop();
-    time+=watch->RealTime();
-    
+    prop->Propagation(n_out); 
     
      double length=riv->Intersezione(n_out);
      
@@ -138,35 +126,32 @@ void Simulatore(){
        int bin=spectrum->FindBin(n_out->GetEnergy());
        double deltaE=spectrum->GetBinWidth(bin);
        spectrum->Fill(n_out->GetEnergy(),((length/riv->GetVolume())/deltaE)/Nstart); //fluence spectrum per starting particle
-       //en_distrib->Fill(n_out->GetEnergy(),1./deltaE);
-
+       
      }
     
     
-     tree->Fill();
+  //tree->Fill();
     n_in->Reset();
   
  
   }
 
-  tree->Write();
+   watch->Stop();
+   time=watch->RealTime();
+
+   //tree->Write();
+
+  // c1->cd();
+  spectrum->GetXaxis()->SetTitle("Energy (eV)");
+  spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
+  spectrum->Draw("HIST");
+  // c1->Close();
+  
   delete n_in;
   delete n_out;
   outFile->Close();
 
-  // c1->cd();
-   spectrum->GetXaxis()->SetTitle("Energy (eV)");
-   spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
-   spectrum->Draw("HIST");
 
-  // c2->cd();
-  // en_distrib->SetTitle("Distribuzione Energia neutroni uscenti");
-  // en_distrib->GetXaxis()->SetTitle("eV");
-  // en_distrib->GetYaxis()->SetTitle("Counts/#Delta E");
-  // en_distrib->Draw("HIST");
-
-  // c1->Close();
-  // c2->Close();
 
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
@@ -182,9 +167,5 @@ void Simulatore(){
 
 
 //DA AGGIUNGERE: dose, aggiungere le uncertainties, confronto con MCNP con S(alfa,beta) turned on and off (?)
-
-//DA SISTEMARE: sezioni d'urto con bin vuoti
-
-//Opzione aggiuntiva: riempire un tree coi neutroni uscenti e utilizzarlo per l'analisi
 
 //Deadline: 10 Febbraio (report con nostri risultati)
