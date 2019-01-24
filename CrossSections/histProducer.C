@@ -2,7 +2,7 @@
 using namespace std;
 
 
-void LineParser(ifstream&, vector<string>&);						//Function to turn a multiple lines file into a vector of strings 
+void LineParser(ifstream&, vector<string>&);						//Function to turn a multiple lines file into a vector of strings
 void Parser(ifstream& file_to_parse, vector<vector<string> >& );	//Function to turn a vector of lines coming from a text in a vector
 							 										//of vectors containing the fields. spreadsheet should be empty
 void histProducer(string fileName, string histName, string outputFileName){
@@ -13,30 +13,45 @@ void histProducer(string fileName, string histName, string outputFileName){
 	vector< vector<string> > spreadsheet;
 
 	Parser(inputFile, spreadsheet);
-	
-	const int points = spreadsheet.size();
-	float binXLow[points+1];
-	float binCenter[points];
-	float crossSection[points];
-	
+
+	int points = spreadsheet.size();
+	vector<float> binXLow_v;
+	vector<float> binCenter_v;
+	vector<float> crossSection_v;
+
 	if(verbose) cout << "Found " << points << " points" << endl;
 
 	for(int i = 0; i <= points; i++){
+		if (i < points -1 && stof(spreadsheet.at(i).at(1)) >= stof(spreadsheet.at(i+1).at(0))){
+			continue;
+		}
 		if (verbose) cout << "Line " << i << "/" << points <<endl;
 		if (i == points){
-			binXLow[i] = binXLow[i-1] +2*(binCenter[i-1] - binXLow[i-1]); 
-			break;	
+			binXLow_v.push_back(binXLow_v.back() + 2*(binCenter_v.back() - binXLow_v.back()	));
+			break;
 		}
-		binXLow[i] = stof(spreadsheet.at(i).at(0));
-		binCenter[i] = stof(spreadsheet.at(i).at(1));
-		crossSection[i] = stof(spreadsheet.at(i).at(2));
-		if(verbose ) cout << binXLow[i] << "\t" << binCenter[i] << "\t" << crossSection[i] << endl;
+		binXLow_v.push_back(stof(spreadsheet.at(i).at(0)));
+		binCenter_v.push_back(stof(spreadsheet.at(i).at(1)));
+		crossSection_v.push_back(stof(spreadsheet.at(i).at(2)));
+		if(verbose ) cout << binXLow_v.back() << "\t" << binCenter_v.back() << "\t" << crossSection_v.back() << endl;
+	}
+	points = binCenter_v.size();
+	if(verbose) cout << points << " points used" << endl;
+	float binXLow[points];
+	float binCenter[points];
+	float crossSection[points];
+
+	for(int i = 0;i<points;i++){
+		binXLow[i]=binXLow_v.at(i);
+		binCenter[i]=binCenter_v.at(i);
+		crossSection[i]=crossSection_v.at(i);
+		if(i==points-1)binXLow[points]=binXLow_v.at(points);
 	}
 // && TMath::IsNaN(crossSection[i])
 	TH1F *hist = new TH1F(histName.c_str(),histName.c_str(),points,binXLow);
 	for(int i = 0; i < points; i++) hist->Fill(binCenter[i],crossSection[i]);
 
-	hist->SaveAs(outputFileName.c_str());
+	hist->SaveAs((outputFileName+".root").c_str());
 }
 
 void LineParser(ifstream& file_to_parse, vector<string>& lines){
@@ -63,9 +78,9 @@ void Parser(ifstream& file_to_parse,vector<vector<string> >& spreadsheet){
     if (!linestream.eof()){
       spreadsheet.push_back(vector<string>());
       while(1){
-	getline(linestream,field_content,' ');
-	spreadsheet.back().push_back(field_content);
-	if (linestream.eof()){break;}
+				getline(linestream,field_content,' ');
+				spreadsheet.back().push_back(field_content);
+				if (linestream.eof())break;
       }
     }
   }
