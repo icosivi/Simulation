@@ -101,7 +101,7 @@ void Simulatore(){
     Neutron *n_out=new Neutron();
     
     //Neutron &nn_in=*n;
-    // Neutron &nn_out=*n_out;
+    //Neutron &nn_out=*n_out;
 
     TFile *outFile=new TFile("neutronTree.root","RECREATE");
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
@@ -113,7 +113,7 @@ void Simulatore(){
     // TCanvas *c2=new TCanvas("c2","c2",1200,800);
   
     TH1D *spectrum=new TH1D("spectrum","spectrum",460,x_vec);  //x_vec deve avere dimensione nbins+1 !!!!
-    TH1D *en_distrib=new TH1D("en distrib","en distrib",460,x_vec); 
+    //TH1D *en_distrib=new TH1D("en distrib","en distrib",460,x_vec); 
 
     TStopwatch *watch=new TStopwatch();
     double time=0;
@@ -138,7 +138,7 @@ void Simulatore(){
        int bin=spectrum->FindBin(n_out->GetEnergy());
        double deltaE=spectrum->GetBinWidth(bin);
        spectrum->Fill(n_out->GetEnergy(),((length/riv->GetVolume())/deltaE)/Nstart); //fluence spectrum per starting particle
-       en_distrib->Fill(n_out->GetEnergy(),1./deltaE);
+       //en_distrib->Fill(n_out->GetEnergy(),1./deltaE);
 
      }
     
@@ -155,9 +155,9 @@ void Simulatore(){
   outFile->Close();
 
   // c1->cd();
-  // spectrum->GetXaxis()->SetTitle("Energy (eV)");
-  // spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
-  // spectrum->Draw("HIST");
+   spectrum->GetXaxis()->SetTitle("Energy (eV)");
+   spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
+   spectrum->Draw("HIST");
 
   // c2->cd();
   // en_distrib->SetTitle("Distribuzione Energia neutroni uscenti");
