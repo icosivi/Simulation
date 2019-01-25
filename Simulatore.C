@@ -101,6 +101,21 @@ void Simulatore(){
     TFile *outFile=new TFile("neutronTree.root","RECREATE");
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
 
+    //TFile *kFile=new TFile("k2","READ");
+
+    ifstream myReadFile;
+     myReadFile.open("k2");
+     double k_coeff[461];  //i k_coeff son in pSv*mm^2   (Valeria ce li ha dati in pSv*cm^2)
+
+     
+     for(int i=0; i<461;i++){
+       
+      double x;
+      myReadFile >> x;
+      k_coeff[i]= x*0.01;
+     
+       }
+
     tree->Branch("n_in",n_in,32000,2);
     tree->Branch("n_out",&n_out,32000,2);
 
@@ -136,6 +151,16 @@ void Simulatore(){
  
   }
 
+
+   double dose;
+
+
+   for(int i=0;i<461;i++){
+
+     dose +=k_coeff[i]*spectrum->GetBinContent(i)*spectrum->GetBinWidth(i);
+
+    }
+
    watch->Stop();
    time=watch->RealTime();
 
@@ -149,12 +174,15 @@ void Simulatore(){
   
   delete n_in;
   delete n_out;
+  //myReadFile.close();
   outFile->Close();
 
 
 
   cout<<" "<<endl;
   cout<<"Fluence per Starting Particle: "<<riv->GetFluence()/Nstart<<endl;
+  cout<<" "<<endl;
+  cout<<"Dose: "<<dose<<endl;
   cout<<" "<<endl;
   cout<<"Mean number of collisions: "<<prop->GetNcoll()/Nstart<<endl;
   cout<<" "<<endl;
