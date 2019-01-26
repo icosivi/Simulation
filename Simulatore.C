@@ -48,7 +48,7 @@ void Simulatore(){
    double shield_sphere_dist;
 
    double seed=0.1;
-   gRandom->SetSeed(seed);
+   gRandom->SetSeed(seed);  //questo chiaramente non sta funzionando ...
    
 
    cout << "Initial Beam Energy (eV)" << endl;
@@ -71,7 +71,7 @@ void Simulatore(){
   Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,x_start,y_start);
   Rivelatore *riv=new Rivelatore(radius,0,0,shield_sphere_dist+prop->GetTargetThick());
 
-  double x_vec[461];
+  double x_vec[461];// vettore di bin energetici di diverse dimensioni 
 
 
   for(int i=0;i<=100;i++){
@@ -101,28 +101,25 @@ void Simulatore(){
     TFile *outFile=new TFile("neutronTree.root","RECREATE");
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
 
-    //TFile *kFile=new TFile("k2","READ");
-
     ifstream myReadFile;
-     myReadFile.open("k2");
-     double k_coeff[461];  //i k_coeff son in pSv*mm^2   (Valeria ce li ha dati in pSv*cm^2)
+    myReadFile.open("k2");
+    double k_coeff[461];  //i k_coeff son in pSv*mm^2   (Valeria ce li ha dati in pSv*cm^2)
 
      
      for(int i=0; i<461;i++){
        
       double x;
       myReadFile >> x;
-      k_coeff[i]= x*0.01;
+      k_coeff[i]= x*100; //passo da pSv*cm^2 a pSv*mm^2
      
        }
 
     tree->Branch("n_in",n_in,32000,2);
     tree->Branch("n_out",&n_out,32000,2);
-
-    // TCanvas *c1=new TCanvas("c1","c1",1200,800);
   
     TH1D *spectrum=new TH1D("spectrum","spectrum",460,x_vec);  //x_vec deve avere dimensione nbins+1 !!!!
-
+    TH1D *abs_spectrum=new TH1D("abs_spectrum","abs_spectrum",460,x_vec);
+    
     TStopwatch *watch=new TStopwatch();
     double time=0;
    
@@ -135,6 +132,8 @@ void Simulatore(){
     prop->Propagation(n_out); 
     
      double length=riv->Intersezione(n_out);
+
+     if(n_out->GetAbsorption() && (n_out->GetEnergy()>0) ) abs_spectrum->Fill(n_out->GetEnergy());
      
      if((n_out->GetEnergy()>0) && !(n_out->GetAbsorption()) && length!=0 ) {
 
@@ -151,31 +150,41 @@ void Simulatore(){
  
   }
 
-
+    watch->Stop();
+    time=watch->RealTime();
+   
    double dose;
-
-
+   
    for(int i=0;i<461;i++){
 
      dose +=k_coeff[i]*spectrum->GetBinContent(i)*spectrum->GetBinWidth(i);
 
     }
 
-   watch->Stop();
-   time=watch->RealTime();
+ 
 
    //tree->Write();
-
-  // c1->cd();
+   
+  TCanvas *c1=new TCanvas("c1","c1",1200,800);
+  c1->cd();
   spectrum->GetXaxis()->SetTitle("Energy (eV)");
   spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
   spectrum->Draw("HIST");
   // c1->Close();
+
+  TCanvas *c2=new TCanvas("c2","c2",1200,800);
+  c2->cd();
+  abs_spectrum->SetTitle("Energy Spectrum of Neutrons Absorbed in PE");
+  abs_spectrum->GetXaxis()->SetTitle("Energy (eV)");
+  abs_spectrum->GetYaxis()->SetTitle("# counts");
+  abs_spectrum->Draw("HIST");
+  // c1->Close();
   
   delete n_in;
   delete n_out;
+  
   //myReadFile.close();
-  outFile->Close();
+  //outFile->Close();
 
 
 
@@ -186,6 +195,8 @@ void Simulatore(){
   cout<<" "<<endl;
   cout<<"Mean number of collisions: "<<prop->GetNcoll()/Nstart<<endl;
   cout<<" "<<endl;
+  cout<<"Mean number of collisions before Absorption: "<<prop->GetAbscoll()/prop->GetAssorbiti()<<endl;
+  cout<<" "<<endl;
   cout<<"Mean CPU time per neutron: "<<time/Nstart<<endl;
   cout<<" "<<endl;
  
@@ -194,6 +205,6 @@ void Simulatore(){
 
 
 
-//DA AGGIUNGERE: dose, aggiungere le uncertainties, confronto con MCNP con S(alfa,beta) turned on and off (?)
+//DA AGGIUNGERE: K_coeff per la dose da sistemare, aggiungere le uncertainties
 
 //Deadline: 10 Febbraio (report con nostri risultati)

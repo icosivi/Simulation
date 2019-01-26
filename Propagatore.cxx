@@ -107,7 +107,6 @@ Neutron* Propagatore::scattering(Neutron *n){ //Ricevo un warning perchè potrei
   double alfa_cm=TMath::ACos(1.-2*gRandom->Rndm());  //angolo theta nel CM, uniforme tra -1 ed 1
 
   double interaction_type=gRandom->Rndm();
-  //double pippo=gRandom->Rndm();
 
   /*cout<<sigma_csc<<endl;
   cout<<sigma_hsc<<endl;
@@ -260,6 +259,7 @@ void Propagatore::Propagation(Neutron *n){
 
   bool contr=kTRUE;
   bool verbosity=kFALSE;
+  double n_coll=0;
   
   while(!(n->GetAbsorption()) && contr){
 
@@ -279,11 +279,19 @@ void Propagatore::Propagation(Neutron *n){
 	
 	this->scattering(n);
 	this->pncollision+=1;
+	n_coll+=1;
 
       }else{contr=kFALSE; }
 
 
  }
+
+  if(n->GetAbsorption()){
+    
+    this->abs_collision+=n_coll;
+    this->assorbiti+=1;
+
+  }
  
  return;
 

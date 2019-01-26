@@ -31,6 +31,8 @@ class Propagatore : public TObject
   void Propagation(Neutron *n); 
   double GetTargetThick() const {return ptarget_thickness;}
   double GetNcoll() const {return pncollision;}
+  double GetAbscoll() const {return abs_collision;}
+  double GetAssorbiti() const {return assorbiti;}
 
   
  private:
@@ -44,6 +46,8 @@ class Propagatore : public TObject
   double hpdensity;
   double cpdensity;
   double pncollision;
+  double abs_collision;
+  double assorbiti;
   
   ClassDef(Propagatore,1)
   
