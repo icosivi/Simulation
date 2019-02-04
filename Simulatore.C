@@ -19,10 +19,10 @@
 #include "Propagatore.h"
 #include "Generatore.h"
 #include "Rivelatore.h"
-  
+
 
 void Simulatore(){
-  
+
   TFile *f0=new TFile("CrossSections/Cabs.root","READ");
   TFile *f1=new TFile("CrossSections/Habs.root","READ");
   TFile *f2=new TFile("CrossSections/Cscat.root","READ");
@@ -32,8 +32,8 @@ void Simulatore(){
    TH1F *h_Habs=dynamic_cast<TH1F*>(f1->Get("H_absorption"));
    TH1F *h_Cscatt=dynamic_cast<TH1F*>(f2->Get("C_scattering"));
    TH1F *h_Hscatt=dynamic_cast<TH1F*>(f3->Get("H_scattering"));
-   
-  
+
+
 
    const double hydrogen_density=8e22;
    const double carbon_density=4e22;
@@ -49,7 +49,7 @@ void Simulatore(){
 
    double seed=0.1;
    gRandom->SetSeed(seed);  //questo chiaramente non sta funzionando ...
-   
+
 
    cout << "Initial Beam Energy (eV)" << endl;
    cin >> Estart;
@@ -66,12 +66,12 @@ void Simulatore(){
    cout << "Distance shield-sphere centre (mm) " << endl;
    cin >> shield_sphere_dist;
 
-  
+
   Propagatore *prop=new Propagatore(h_Cscatt,h_Hscatt,h_Cabs,h_Habs,lateral_size,thick,hydrogen_density,carbon_density);
   Generatore *gen=new Generatore(Nstart,Estart,beam_size,beam_size,x_start,y_start);
   Rivelatore *riv=new Rivelatore(radius,0,0,shield_sphere_dist+prop->GetTargetThick());
 
-  double x_vec[461];// vettore di bin energetici di diverse dimensioni 
+  double x_vec[461];// vettore di bin energetici di diverse dimensioni
 
 
   for(int i=0;i<=100;i++){
@@ -94,7 +94,7 @@ void Simulatore(){
   x_vec[j+370]=100000+j*10000;
   }
 
-  
+
     Neutron *n_in=new Neutron();
     Neutron *n_out=new Neutron();
 
@@ -102,74 +102,93 @@ void Simulatore(){
     TTree *tree=new TTree("tree","tree di neutroni uscenti");
 
     ifstream myReadFile;
-    myReadFile.open("k2");
-    double k_coeff[461];  //i k_coeff son in pSv*mm^2   (Valeria ce li ha dati in pSv*cm^2)
+    myReadFile.open("hist_k");
+    //double k_coeff[461];  //i k_coeff son in pSv*mm^2   (Valeria ce li ha dati in pSv*cm^2)
 
-     
-     for(int i=0; i<461;i++){
-       
+    double x_energy[41];
+    double y_kcoeff[41];
+
+     for(int i=0; i<41;i++){
+
       double x;
-      myReadFile >> x;
-      k_coeff[i]= x*100; //passo da pSv*cm^2 a pSv*mm^2
-     
+      double y;
+      myReadFile >> x >> y;
+      x_energy[i]= x;
+      y_kcoeff[i]=y*100; //passo da pSv*cm^2 a pSv*mm^2
+
        }
+
+    TH1D *hist_k=new TH1D("hist_k","hist_k",40,x_energy); //41
+
+    for(int i=0;i<40;i++){
+
+      hist_k->Fill(x_energy[i],y_kcoeff[i]);
+
+    }
 
     tree->Branch("n_in",n_in,32000,2);
     tree->Branch("n_out",&n_out,32000,2);
-  
+
     TH1D *spectrum=new TH1D("spectrum","spectrum",460,x_vec);  //x_vec deve avere dimensione nbins+1 !!!!
     TH1D *abs_spectrum=new TH1D("abs_spectrum","abs_spectrum",460,x_vec);
-    
+
     TStopwatch *watch=new TStopwatch();
     double time=0;
-   
+
    watch->Start();
-   
+
+    double dose=0;
+
   for(int i=0;i<gen->GetParticles();i++){
-    
+
     gen->Genera_neutrone(n_in);
     *n_out=Neutron(n_in);
-    prop->Propagation(n_out); 
-    
+    prop->Propagation(n_out);
+
      double length=riv->Intersezione(n_out);
 
      if(n_out->GetAbsorption() && (n_out->GetEnergy()>0) ) abs_spectrum->Fill(n_out->GetEnergy());
-     
+
      if((n_out->GetEnergy()>0) && !(n_out->GetAbsorption()) && length!=0 ) {
 
        int bin=spectrum->FindBin(n_out->GetEnergy());
+       int bin2=hist_k->FindBin(n_out->GetEnergy());
        double deltaE=spectrum->GetBinWidth(bin);
+       double kc=hist_k->GetBinContent(bin2);
+       //cout<<kc<<endl;
        spectrum->Fill(n_out->GetEnergy(),((length/riv->GetVolume())/deltaE)/Nstart); //fluence spectrum per starting particle
-       
+       dose += (((length/riv->GetVolume()))/Nstart)*kc;
+
      }
-    
-    
+
+
   //tree->Fill();
     n_in->Reset();
-  
- 
+
+
   }
 
     watch->Stop();
     time=watch->RealTime();
-   
-   double dose;
-   
+
+  /* double dose;
+
    for(int i=0;i<461;i++){
 
      dose +=k_coeff[i]*spectrum->GetBinContent(i)*spectrum->GetBinWidth(i);
 
-    }
+   }*/
 
- 
+
 
    //tree->Write();
-   
+
   TCanvas *c1=new TCanvas("c1","c1",1200,800);
   c1->cd();
   spectrum->GetXaxis()->SetTitle("Energy (eV)");
   spectrum->GetYaxis()->SetTitle("Fluence Spectrum #Delta#phi/#Delta E");
   spectrum->Draw("HIST");
+  //hist_k->Draw("HIST");
   // c1->Close();
 
   TCanvas *c2=new TCanvas("c2","c2",1200,800);
@@ -179,10 +198,10 @@ void Simulatore(){
   abs_spectrum->GetYaxis()->SetTitle("# counts");
   abs_spectrum->Draw("HIST");
   // c1->Close();
-  
+
   delete n_in;
   delete n_out;
-  
+
   //myReadFile.close();
   //outFile->Close();
 
@@ -199,7 +218,7 @@ void Simulatore(){
   cout<<" "<<endl;
   cout<<"Mean CPU time per neutron: "<<time/Nstart<<endl;
   cout<<" "<<endl;
- 
+
 
 }
 
